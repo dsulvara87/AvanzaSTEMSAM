@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Róbotica</title>
+    <style>
+        :root {
+            --bg: #010409;
+            --panel: #0d1117;
+            --accent: #58a6ff;
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #da3633;
+            --text: #c9d1d9;
+            --border: #30363d;
+            --code-bg: #000000;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Consolas', 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Navegación WISE con Bloqueo Estricto */
+        .wise-nav {
+            display: flex;
+            background: #161b22;
+            padding: 10px 20px 0;
+            gap: 5px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .step-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #0d1117;
+            color: #8b949e;
+            cursor: not-allowed;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+            .step-btn.unlocked {
+                cursor: pointer;
+                color: var(--text);
+            }
+
+            .step-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                border-top: 2px solid var(--accent);
+                font-weight: bold;
+            }
+
+        .workspace {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            grid-template-columns: 380px auto 420px;
+        }
+
+            .workspace.active {
+                display: grid;
+            }
+
+        aside {
+            background: var(--panel);
+            padding: 20px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #panelSTEM {
+            border-right: none;
+            border-left: 1px solid var(--border);
+        }
+
+        /* --- TWIN DIGITAL: ENSAMBLE (10 PARTES) --- */
+        .parts-bin {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: #161b22;
+            padding: 15px;
+            border: 1px dashed var(--border);
+        }
+
+        .part-eng {
+            padding: 8px;
+            background: #21262d;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            cursor: grab;
+            font-size: 0.65rem;
+            text-align: center;
+        }
+
+        .chassis-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 450px;
+            margin-top: 15px;
+        }
+
+        .drop-target {
+            height: 60px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            text-align: center;
+        }
+
+            .drop-target.success {
+                border-color: var(--success);
+                color: var(--success);
+                background: rgba(35, 134, 54, 0.1);
+                border-style: solid;
+                font-weight: bold;
+            }
+
+        .traffic-light {
+            background: #1c2128;
+            width: 90px;
+            padding: 25px;
+            border-radius: 20px;
+            border: 4px solid #30363d;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .bulb {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #0d1117;
+            border: 2px solid #21262d;
+        }
+
+        .red.on {
+            background: #ff3d00;
+            box-shadow: 0 0 35px #ff3d00;
+        }
+
+        .yellow.on {
+            background: #ffab00;
+            box-shadow: 0 0 35px #ffab00;
+        }
+
+        .green.on {
+            background: #00c853;
+            box-shadow: 0 0 35px #00c853;
+        }
+
+        /* --- ESTACIÓN DE DIBUJO (PAINT TÉCNICO) --- */
+        .canvas-container {
+            position: relative;
+            background: #fff;
+            width: 98%;
+            height: 500px;
+            border-radius: 8px;
+            border: 3px solid var(--border);
+            overflow: hidden;
+        }
+
+        #blueprint-canvas {
+            cursor: crosshair;
+            touch-action: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .tool-palette {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 5px;
+            background: #161b22;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .t-btn {
+            padding: 8px;
+            background: #21262d;
+            color: white;
+            border: 1px solid var(--accent);
+            cursor: pointer;
+            font-size: 0.65rem;
+            border-radius: 4px;
+            text-align: left;
+        }
+
+            .t-btn.active {
+                background: var(--success);
+                border-color: white;
+                box-shadow: 0 0 8px var(--success);
+            }
+
+        /* --- IDE Y SISTEMATIZACIÓN --- */
+        .ide-editor {
+            width: 100%;
+            background: var(--code-bg);
+            color: #39ff14;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            resize: none;
+        }
+
+        .btn-eng {
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: var(--success);
+            color: white;
+            width: 100%;
+        }
+
+        .edu-note {
+            background: rgba(88, 166, 255, 0.1);
+            padding: 10px;
+            border-left: 3px solid var(--accent);
+            font-size: 0.75rem;
+            color: #c9d1d9;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="wise-nav">
+        <button class="step-btn active unlocked" id="b1" onclick="nav(1)">01. Indagación</button>
+        <button class="step-btn" id="b2" onclick="nav(2)">02. Ensamble & Twin Digital</button>
+        <button class="step-btn" id="b3" onclick="nav(3)">03. Diseño de Planos</button>
+        <button class="step-btn" id="b4" onclick="nav(4)">04. Sistematización</button>
+    </nav>
+
+    <section id="s1" class="workspace active">
+        <aside>
+            <h2>🔍 Fase: Observación</h2>
+            <div class="edu-note"><b>Meta:</b> Identificar variables del entorno real (Usme) para traducirlas a lógica binaria.</div>
+            <textarea id="diag-input" class="ide-editor" style="height: 250px;" placeholder="Analiza el video." oninput="validateL1()"></textarea>
+            <button class="btn-eng" id="btn-lock1" disabled onclick="unlock(2)" style="opacity:0.3;">Siguiente Fase →</button>
+        </aside>
+        <main style="display:flex; justify-content:center; align-items:center; padding: 20px 0;">
+
+            <div style="position:relative; width:90%; max-width:960px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; display:block;">
+
+                <iframe src="https://www.youtube.com/embed/-HGujh1Eglg?rel=0"
+                        title="Video educativo"
+                        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                </iframe>
+
+            </div>
+
+        </main>
+        <aside id="panelSTEM"><h2>📈 Pensamiento STEM</h2><textarea class="ide-editor" rows="12" placeholder="Escribe tu hipótesis de diseño..."></textarea></aside>
+    </section>
+
+    <section id="s2" class="workspace">
+        <aside>
+            <h2>⚙️ Control de Ciclo</h2>
+            <div class="edu-note">Ajusta los tiempos de retraso (delay) para sincronizar el tráfico rural.</div>
+            <label>Delay (ms):</label>
+            <input type="number" id="t-v" value="5000" style="background:#000; color:white; border:1px solid var(--border); width:100%; margin:5px 0;">
+            <input type="number" id="t-a" value="1500" style="background:#000; color:white; border:1px solid var(--border); width:100%; margin:5px 0;">
+            <input type="number" id="t-r" value="5000" style="background:#000; color:white; border:1px solid var(--border); width:100%;">
+            <button class="btn-eng" style="margin-top:20px;" onclick="runSystem()">▶ Compilar e Iniciar</button>
+            <div id="console" style="background:#000; color:#00ff00; padding:10px; font-size:0.7rem; height:80px; overflow-y:auto; margin-top:10px; border:1px solid var(--border);"></div>
+            <button class="btn-eng" id="btn-lock2" style="margin-top:10px; background:var(--accent); display:none;" onclick="unlock(3)">Hardware Validado</button>
+        </aside>
+        <main style="display:flex; flex-direction:column; align-items:center; justify-content:center; background:#010409;">
+            <div class="parts-bin">
+                <div class="part-eng" draggable="true" id="p-mcu" ondragstart="drag(event)">Tarjeta MCU</div>
+                <div class="part-eng" draggable="true" id="p-chs" ondragstart="drag(event)">Carcaza PVC</div>
+                <div class="part-eng" draggable="true" id="p-r1" ondragstart="drag(event)">Res. A</div>
+                <div class="part-eng" draggable="true" id="p-r2" ondragstart="drag(event)">Res. B</div>
+                <div class="part-eng" draggable="true" id="p-r3" ondragstart="drag(event)">Res. C</div>
+                <div class="part-eng" draggable="true" id="p-lr" ondragstart="drag(event)">LED Rojo</div>
+                <div class="part-eng" draggable="true" id="p-la" ondragstart="drag(event)">LED Ámbar</div>
+                <div class="part-eng" draggable="true" id="p-lv" ondragstart="drag(event)">LED Verde</div>
+                <div class="part-eng" draggable="true" id="p-gnd" ondragstart="drag(event)">Bus GND</div>
+                <div class="part-eng" draggable="true" id="p-vcc" ondragstart="drag(event)">Bus VCC</div>
+            </div>
+            <div class="chassis-grid">
+                <div class="drop-target" id="d-mcu" ondrop="drop(event, 'p-mcu')" ondragover="allowDrop(event)">MCU</div>
+                <div class="drop-target" id="d-chs" ondrop="drop(event, 'p-chs')" ondragover="allowDrop(event)">Estructura</div>
+                <div class="drop-target" id="d-r1" ondrop="drop(event, 'p-r1')" ondragover="allowDrop(event)">Res 1</div>
+                <div class="drop-target" id="d-r2" ondrop="drop(event, 'p-r2')" ondragover="allowDrop(event)">Res 2</div>
+                <div class="drop-target" id="d-r3" ondrop="drop(event, 'p-r3')" ondragover="allowDrop(event)">Res 3</div>
+                <div class="drop-target" id="d-lr" ondrop="drop(event, 'p-lr')" ondragover="allowDrop(event)">LED_R</div>
+                <div class="drop-target" id="d-la" ondrop="drop(event, 'p-la')" ondragover="allowDrop(event)">LED_A</div>
+                <div class="drop-target" id="d-lv" ondrop="drop(event, 'p-lv')" ondragover="allowDrop(event)">LED_V</div>
+                <div class="drop-target" id="d-gnd" ondrop="drop(event, 'p-gnd')" ondragover="allowDrop(event)">GND</div>
+                <div class="drop-target" id="d-vcc" ondrop="drop(event, 'p-vcc')" ondragover="allowDrop(event)">VCC</div>
+            </div>
+            <div class="traffic-light">
+                <div id="w-red" class="bulb red"></div>
+                <div id="w-yellow" class="bulb yellow"></div>
+                <div id="w-green" class="bulb green"></div>
+            </div>
+        </main>
+        <aside id="panelSTEM">
+            <h2>💻 IDE C++ (Editable)</h2>
+            <textarea id="ide-code" class="ide-editor" rows="22" spellcheck="false">
+// Configuración de Puertos
+void setup() {
+  pinMode(13, OUTPUT); // ROJO
+  pinMode(12, OUTPUT); // AMBAR
+  pinMode(11, OUTPUT); // VERDE
+}
+
+// Lógica de Control
+void loop() {
+  digitalWrite(11, HIGH); 
+  delay(5000); 
+  digitalWrite(11, LOW);
+  
+  digitalWrite(12, HIGH); 
+  delay(1500); 
+  digitalWrite(12, LOW);
+}</textarea>
+        </aside>
+    </section>
+
+    <section id="s3" class="workspace">
+        <aside>
+            <h2>🏗️ Manufactura Prototipo</h2>
+            <div class="edu-note"><b>Paso a Paso:</b> 1. Perforar chasis. 2. Instalar LEDs. 3. Cablear resistencias en Ánodos. 4. Cargar código COM3.</div>
+            <textarea class="ide-editor" rows="12" placeholder="Describe los materiales y el proceso de manufactura física..."></textarea>
+            <button class="btn-eng" onclick="unlock(4)">Confirmar Planos</button>
+        </aside>
+        <main style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <h3>Estación de Diseño: Planos de Ingeniería</h3>
+            <div class="canvas-container"><canvas id="blueprint-canvas"></canvas></div>
+            <div style="display:flex; gap:10px; margin-top:10px; width:95%;"><button class="btn-eng" style="background:var(--danger);" onclick="clearCanvas()">Borrar Lienzo</button></div>
+        </main>
+        <aside id="panelSTEM">
+            <h2>🎨 Herramientas CAD-Paint</h2>
+            <div class="tool-palette">
+                <button class="t-btn active" id="pencil" onclick="setTool('pencil')">✏️ Lápiz (Cableado)</button>
+                <button class="t-btn" id="rect" onclick="setTool('rect')">🔳 Cuadrado (Placa/MCU)</button>
+                <button class="t-btn" id="circle" onclick="setTool('circle')">⭕ Círculo (LED/Pulsador)</button>
+                <button class="t-btn" id="line" onclick="setTool('line')">📏 Línea (Bus de Datos)</button>
+                <hr border="0" style="border-top:1px solid var(--border)">
+                <button class="t-btn" onclick="stamp('ard')">🟦 Estampar Arduino</button>
+                <button class="t-btn" onclick="stamp('res')">〰️ Estampar Resistencia</button>
+                <button class="t-btn" onclick="stamp('gnd')">⏚ Estampar GND</button>
+                <button class="t-btn" onclick="stamp('bat')">🔋 Estampar Batería 9V</button>
+            </div>
+        </aside>
+    </section>
+
+    <section id="s4" class="workspace">
+        <aside>
+            <h2>📊 Evidencia Técnica</h2>
+            <textarea id="calc-medidas" class="ide-editor" rows="12" placeholder="Medidas y Tolerancias..."></textarea>
+            <textarea id="calc-electronica" class="ide-editor" rows="12" placeholder="Análisis de Corriente..."></textarea>
+        </aside>
+        <main style="display:flex; flex-direction:column; padding:20px; background:#010409; overflow-y:auto;">
+            <div style="background:#161b22; padding:15px; border-radius:8px; border-left:4px solid var(--success);">
+                <h1 style="color:var(--success); margin:0; font-size:1.1rem;">SISTEMATIZACIÓN FINAL</h1>
+                <p style="font-size:0.75rem;">Consolidación de hallazgos para investigación doctoral.</p>
+            </div>
+            <label style="color:var(--accent); margin-top:10px; display:block;">Informe Final de Investigación:</label>
+            <textarea id="full-report" class="ide-editor" style="flex:1; margin-bottom:15px;" placeholder="Redacta la argumentación científica del prototipo..."></textarea>
+            <button class="btn-eng" style="height:55px;" onclick="exportCSV()">💾 Descargar Evidencia (.CSV)</button>
+        </main>
+        <aside id="panelSTEM">
+            <h2>🎓 Conclusiones</h2>
+            <textarea id="calc-ensamble" class="ide-editor" rows="12" placeholder="Notas sobre el ensamble..."></textarea>
+            <textarea id="calc-prog" class="ide-editor" rows="12" placeholder="Lógica de programación..."></textarea>
+        </aside>
+    </section>
+
+    <script>let unlocked = [1], fitted = 0, running = false, tool = 'pencil';
+        const canvas = document.getElementById('blueprint-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false, startX, startY;
+
+        function nav(n) {
+            if (!unlocked.includes(n)) return;
+            document.querySelectorAll('.workspace, .step-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+            document.getElementById('b' + n).classList.add('active');
+            if (n === 3) setTimeout(resizeCanvas, 100);
+        }
+
+        function unlock(n) { if (!unlocked.includes(n)) { unlocked.push(n); document.getElementById('b' + n).classList.add('unlocked'); } nav(n); }
+        function validateL1() { if (document.getElementById('diag-input').value.length > 80) { const b = document.getElementById('btn-lock1'); b.disabled = false; b.style.opacity = "1"; } }
+
+        function resizeCanvas() { const p = canvas.parentElement; canvas.width = p.clientWidth; canvas.height = p.clientHeight; ctx.lineCap = 'round'; ctx.lineWidth = 3; ctx.strokeStyle = '#003366'; }
+
+        canvas.onmousedown = (e) => {
+            isDrawing = true; const r = canvas.getBoundingClientRect();
+            startX = e.clientX - r.left; startY = e.clientY - r.top;
+            if (tool === 'pencil') ctx.beginPath();
+        };
+
+        canvas.onmousemove = (e) => {
+            if (!isDrawing || tool !== 'pencil') return;
+            const r = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - r.left, e.clientY - r.top); ctx.stroke();
+        };
+
+        canvas.onmouseup = (e) => {
+            if (!isDrawing || tool === 'pencil') { isDrawing = false; return; }
+            const r = canvas.getBoundingClientRect();
+            const ex = e.clientX - r.left, ey = e.clientY - r.top;
+            if (tool === 'rect') ctx.strokeRect(startX, startY, ex - startX, ey - startY);
+            if (tool === 'circle') {
+                const rad = Math.sqrt(Math.pow(ex - startX, 2) + Math.pow(ey - startY, 2));
+                ctx.beginPath(); ctx.arc(startX, startY, rad, 0, Math.PI * 2); ctx.stroke();
+            }
+            if (tool === 'line') { ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(ex, ey); ctx.stroke(); }
+            isDrawing = false;
+        };
+
+        function setTool(t) { tool = t; document.querySelectorAll('.t-btn').forEach(b => b.classList.remove('active')); document.getElementById(t).classList.add('active'); }
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function stamp(type) {
+            const x = 50, y = 50; ctx.fillStyle = "#e1e4e8"; ctx.strokeStyle = "#333";
+            if (type === 'ard') { ctx.fillRect(x, y, 100, 70); ctx.strokeRect(x, y, 100, 70); ctx.fillStyle = "#000"; ctx.fillText("ARDUINO", x + 15, y + 45); }
+            if (type === 'res') { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 10, y - 10); ctx.lineTo(x + 20, y + 10); ctx.lineTo(x + 30, y - 10); ctx.lineTo(x + 40, y); ctx.stroke(); }
+            if (type === 'gnd') { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 15); ctx.moveTo(x - 8, y + 15); ctx.lineTo(x + 8, y + 15); ctx.stroke(); }
+            if (type === 'bat') { ctx.strokeRect(x, y, 30, 50); ctx.fillRect(x + 10, y - 8, 10, 8); }
+        }
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+        function drop(ev, targetId) {
+            ev.preventDefault(); const data = ev.dataTransfer.getData("text");
+            if (data === targetId) {
+                ev.currentTarget.classList.add('success'); ev.currentTarget.innerText = "INSTALADO";
+                document.getElementById(data).style.display = "none"; fitted++;
+                if (fitted === 10) { document.getElementById('btn-lock2').style.display = "block"; }
+            }
+        }
+
+        function runSystem() {
+            if (fitted < 10) return; running = true; let state = 0;
+            const cycle = () => {
+                if (!running) return;
+                document.querySelectorAll('.bulb').forEach(b => b.classList.remove('on'));
+                let dur = parseInt(document.getElementById('t-v').value);
+                if (state === 0) { document.getElementById('w-green').classList.add('on'); }
+                else if (state === 1) { document.getElementById('w-yellow').classList.add('on'); dur = parseInt(document.getElementById('t-a').value); }
+                else { document.getElementById('w-red').classList.add('on'); dur = parseInt(document.getElementById('t-r').value); }
+                state = (state + 1) % 3; setTimeout(cycle, dur);
+            }; cycle();
+        }
+
+        function exportCSV() {
+            let csv = "FASE,CONTENIDO\n";
+            const med = document.getElementById('calc-medidas').value.replace(/,/g, ".");
+            const ele = document.getElementById('calc-electronica').value.replace(/,/g, ".");
+            const ens = document.getElementById('calc-ensamble').value.replace(/,/g, ".");
+            const prg = document.getElementById('calc-prog').value.replace(/,/g, ".");
+            const inf = document.getElementById('full-report').value.replace(/,/g, ".");
+            csv += `Medidas,${med}\nElectronica,${ele}\nEnsamble,${ens}\nProgramacion,${prg}\nInforme,${inf}\n`;
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "AvanzaSTEM_Reporte.csv"); link.click();
+        }</script>
+</body>
+</html>

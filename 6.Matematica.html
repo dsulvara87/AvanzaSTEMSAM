@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Matemática</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #02060a;
+            --panel: #0a1118;
+            --accent: #ff7a18;
+            --success: #00ff9d;
+            --text: #f0f7ff;
+            --border: #1a2c3a;
+            --cyan: #2fb4ff;
+            --danger: #ff4d4d;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* NAVEGACIÓN WISE */
+        .wise-nav {
+            display: flex;
+            background: #161b22;
+            padding: 12px 20px 0;
+            gap: 8px;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .step-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #0d1117;
+            color: #5c7080;
+            cursor: not-allowed;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+            .step-btn.unlocked {
+                cursor: pointer;
+                color: var(--text);
+            }
+
+            .step-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                border-top: 3px solid var(--accent);
+                font-weight: bold;
+            }
+
+        .workspace {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            grid-template-columns: 480px auto 420px;
+        }
+
+            .workspace.active {
+                display: grid;
+            }
+
+        aside {
+            background: var(--panel);
+            padding: 25px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #panelRight {
+            border-left: 1px solid var(--border);
+            border-right: none;
+        }
+
+        h2 {
+            color: var(--accent);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .context-card {
+            background: rgba(47, 180, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            border-left: 4px solid var(--cyan);
+        }
+
+        /* EDITOR DE RIGOR */
+        .math-editor {
+            width: 100%;
+            background: #000;
+            color: var(--success);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            margin-top: 10px;
+            resize: none;
+            min-height: 480px;
+            line-height: 1.6;
+            border-bottom: 4px solid var(--danger);
+            outline: none;
+            transition: 0.3s;
+        }
+
+            .math-editor.valid {
+                border-bottom-color: var(--success);
+            }
+
+        .char-count {
+            font-size: 11px;
+            text-align: right;
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+            .char-count.valid {
+                color: var(--success);
+            }
+
+        .btn-eng {
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            background: var(--success);
+            color: #000;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+            .btn-eng:disabled {
+                opacity: 0.3;
+                filter: grayscale(1);
+            }
+
+        .central-board {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 25px;
+            background: #02060a;
+            overflow-y: auto;
+        }
+
+        .canvas-container {
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            height: 480px;
+        }
+
+        .data-input-group {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        input {
+            background: #000;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 5px;
+            width: 90%;
+            margin-top: 5px;
+        }
+
+        .formula-box {
+            background: #1a2c3a;
+            color: var(--cyan);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="wise-nav">
+        <button class="step-btn active unlocked" id="b1" onclick="nav(1)">01. Fundamentación</button>
+        <button class="step-btn" id="b2" onclick="nav(2)">02. Modelación</button>
+        <button class="step-btn" id="b3" onclick="nav(3)">03. Simulación</button>
+        <button class="step-btn" id="b4" onclick="nav(4)">04. Reporte Final</button>
+    </nav>
+
+    <section id="s1" class="workspace active">
+        <aside>
+            <h2>🏔️ Nivel 1: Indagación de Campo</h2>
+            <div class="context-card">
+                <strong>Contexto Territorial:</strong> Usme se caracteriza por una topografía de alta montaña con pendientes que desafían la infraestructura urbana.
+            </div>
+            <div style="font-size:12px; color:#aaa; margin-top:10px;">
+                <strong>Ejercicios Matemáticos:</strong><br>
+                1. Clasifica 3 variables continuas (altura) y 2 discretas (viviendas).<br>
+                2. Calcula la razón de cambio entre dos puntos de relieve.<br>
+                3. Define la escala cartográfica para un plano de 1000m.<br>
+                4. Explica cómo la gravedad afecta el diseño de tuberías en ladera.<br>
+                5. Identifica los polígonos irregulares que forman los límites locales.
+            </div>
+            <textarea id="t1" class="math-editor" oninput="check(1)">EJERCICIO 1: 
+EJERCICIO 2: 
+EJERCICIO 3: 
+EJERCICIO 4: 
+EJERCICIO 5: </textarea>
+            <div id="c1" class="char-count">Faltan caracteres para validar (mín. 140)</div>
+            <button class="btn-eng" id="l1" disabled onclick="unlock(2)">Sincronizar Datos →</button>
+        </aside>
+        <main class="central-board">
+            <div class="context-card" style="border-left: 4px solid var(--accent); background: rgba(255, 122, 24, 0.05);">
+                <strong>Explicación del Módulo:</strong><br>
+                Este entorno simula un laboratorio de ingeniería civil. El objetivo es que utilices el **Álgebra, la Trigonometría y la Estadística** para proponer soluciones a la geografía de Usme. Cada nivel te obligará a manipular variables en el plano cartesiano (panel derecho) y documentar tus procesos técnicos (panel izquierdo). Sin la validación técnica de 140 caracteres, el sistema no permitirá el avance de fase.
+            </div>
+            <div class="canvas-container"><canvas id="chart1"></canvas></div>
+        </main>
+        <aside id="panelRight">
+            <h2>⚙️ Control de Simulación</h2>
+            <div class="data-input-group">
+                <label>Ajuste de Cota de Terreno (y):</label>
+                <input type="number" id="v1-1" value="40" oninput="update(1)">
+            </div>
+            <div class="formula-box">Escala = d_mapa / D_real</div>
+        </aside>
+    </section>
+
+    <section id="s2" class="workspace">
+        <aside>
+            <h2>📐 Nivel 2: Modelación Algebraica</h2>
+            <div class="context-card">Cálculo de pendientes y trayectorias lineales:</div>
+            <div style="font-size:12px; color:#aaa; margin-top:5px;">
+                1. Calcula la pendiente (m) de una calle con Δy=50 y Δx=200.<br>
+                2. Halla la intersección de dos rutas de buses (Sistemas 2x2).<br>
+                3. Modela el costo de material y = mx + b.<br>
+                4. Analiza la viabilidad si la pendiente supera el 15%.<br>
+                5. Despeja la variable independiente en la ecuación de presupuesto.
+            </div>
+            <textarea id="t2" class="math-editor" oninput="check(2)">EJERCICIO 1: 
+EJERCICIO 2: 
+EJERCICIO 3: 
+EJERCICIO 4: 
+EJERCICIO 5: </textarea>
+            <div id="c2" class="char-count">Faltan caracteres para validar (mín. 140)</div>
+            <button class="btn-eng" id="l2" disabled onclick="unlock(3)">Validar Modelos →</button>
+        </aside>
+        <main class="central-board"><div class="canvas-container"><canvas id="chart2"></canvas></div></main>
+        <aside id="panelRight">
+            <h2>📈 Simulación Lineal</h2>
+            <div class="data-input-group">
+                <label>Pendiente de la Vía (m):</label>
+                <input type="number" id="v2-m" value="1.5" step="0.5" oninput="update(2)">
+                <label>Intercepto (b):</label>
+                <input type="number" id="v2-b" value="10" oninput="update(2)">
+            </div>
+            <div class="formula-box">y = mx + b</div>
+        </aside>
+    </section>
+
+    <section id="s3" class="workspace">
+        <aside>
+            <h2>🎢 Nivel 3: Simulación Geométrica</h2>
+            <div class="context-card">Trigonometría aplicada a estructuras:</div>
+            <div style="font-size:12px; color:#aaa; margin-top:5px;">
+                1. Calcula la hipotenusa de una rampa de acceso (Pitágoras).<br>
+                2. Determina el ángulo de elevación usando la función Tan⁻¹.<br>
+                3. Halla el área de una cimentación triangular.<br>
+                4. Calcula el volumen de concreto para un muro de contención.<br>
+                5. Optimiza el perímetro de una zona de seguridad ambiental.
+            </div>
+            <textarea id="t3" class="math-editor" oninput="check(3)">EJERCICIO 1: 
+EJERCICIO 2: 
+EJERCICIO 3: 
+EJERCICIO 4: 
+EJERCICIO 5: </textarea>
+            <div id="c3" class="char-count">Faltan caracteres para validar (mín. 140)</div>
+            <button class="btn-eng" id="l3" disabled onclick="unlock(4)">Validar Cálculos →</button>
+        </aside>
+        <main class="central-board"><div class="canvas-container"><canvas id="chart3"></canvas></div></main>
+        <aside id="panelRight">
+            <h2>📐 Simulación Trigonométrica</h2>
+            <div class="data-input-group">
+                <label>Base (Cateto a):</label><input type="number" id="v3-a" value="20" oninput="update(3)">
+                <label>Altura (Cateto b):</label><input type="number" id="v3-b" value="15" oninput="update(3)">
+            </div>
+            <div id="res-3" style="margin-top:10px; color:var(--success); font-family:monospace; font-size:12px;"></div>
+            <div class="formula-box">c = √(a² + b²)</div>
+        </aside>
+    </section>
+
+    <section id="s4" class="workspace">
+        <aside>
+            <h2>📊 Nivel 4: Análisis Estadístico</h2>
+            <div class="context-card">Consolidación de datos de riesgo y población:</div>
+            <div style="font-size:12px; color:#aaa; margin-top:5px;">
+                1. Halla la media y mediana de los riesgos detectados.<br>
+                2. Calcula la desviación estándar de la muestra poblacional.<br>
+                3. Crea un histograma de frecuencia de zonas seguras.<br>
+                4. Analiza la varianza del terreno respecto a la altura.<br>
+                5. Concluye los hallazgos técnicos del laboratorio.
+            </div>
+            <textarea id="t4" class="math-editor" oninput="check(4)">EJERCICIO 1: 
+EJERCICIO 2: 
+EJERCICIO 3: 
+EJERCICIO 4: 
+EJERCICIO 5: </textarea>
+            <div id="c4" class="char-count">Faltan caracteres para validar (mín. 140)</div>
+            <button class="btn-eng" id="l4" disabled onclick="exportar()">💾 Exportar Reporte Técnico (.txt)</button>
+        </aside>
+        <main class="central-board"><div class="canvas-container"><canvas id="chart4"></canvas></div></main>
+        <aside id="panelRight">
+            <h2>📊 Simulación Estadística</h2>
+            <div class="data-input-group">
+                <label>Frecuencia Sector A:</label><input type="number" id="v4-1" value="35" oninput="update(4)">
+                <label>Frecuencia Sector B:</label><input type="number" id="v4-2" value="65" oninput="update(4)">
+            </div>
+        </aside>
+    </section>
+
+    <script>let unlocked = [1], charts = {};
+
+        function nav(n) {
+            if (!unlocked.includes(n)) return;
+            document.querySelectorAll('.workspace, .step-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+            document.getElementById('b' + n).classList.add('active');
+            initChart(n);
+        }
+
+        function unlock(n) {
+            if (!unlocked.includes(n)) unlocked.push(n);
+            document.getElementById('b' + n).classList.add('unlocked');
+            nav(n);
+        }
+
+        function check(n) {
+            const val = document.getElementById('t' + n).value;
+            const counter = document.getElementById('c' + n);
+            const btn = document.getElementById('l' + n);
+            const editor = document.getElementById('t' + n);
+
+            if (val.length >= 140) {
+                counter.innerText = "Evidencia válida (" + val.length + " car.)";
+                counter.className = "char-count valid";
+                editor.classList.add('valid');
+                btn.disabled = false;
+            } else {
+                counter.innerText = "Faltan " + (140 - val.length) + " caracteres";
+                counter.className = "char-count";
+                editor.classList.remove('valid');
+                btn.disabled = true;
+            }
+        }
+
+        function initChart(n) {
+            const id = 'chart' + n;
+            if (charts[id]) return;
+            const ctx = document.getElementById(id).getContext('2d');
+            charts[id] = new Chart(ctx, {
+                type: n === 4 ? 'bar' : 'line',
+                data: {
+                    labels: n === 4 ? ['A', 'B'] : [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    datasets: [{ label: 'Variable Técnica', data: [], borderColor: '#ff7a18', backgroundColor: 'rgba(255, 122, 24, 0.2)', tension: 0.3 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+            update(n);
+        }
+
+        function update(n) {
+            const id = 'chart' + n;
+            if (!charts[id]) return;
+            let d = [];
+            if (n === 1) d = [15, 25, parseInt(document.getElementById('v1-1').value), 60, 45, 20];
+            if (n === 2) {
+                let m = parseFloat(document.getElementById('v2-m').value);
+                let b = parseFloat(document.getElementById('v2-b').value);
+                for (let x = 0; x < 9; x++) d.push(m * x + b);
+            }
+            if (n === 3) {
+                let a = parseInt(document.getElementById('v3-a').value);
+                let b = parseInt(document.getElementById('v3-b').value);
+                let hip = Math.sqrt(a * a + b * b).toFixed(2);
+                let ang = (Math.atan(b / a) * 180 / Math.PI).toFixed(1);
+                document.getElementById('res-3').innerText = `Hipotenusa: ${hip}m | Ángulo: ${ang}°`;
+                d = [{ x: 0, y: 0 }, { x: a, y: 0 }, { x: 0, y: b }, { x: 0, y: 0 }];
+            }
+            if (n === 4) d = [parseInt(document.getElementById('v4-1').value), parseInt(document.getElementById('v4-2').value)];
+            charts[id].data.datasets[0].data = d;
+            charts[id].update();
+        }
+
+        function exportar() {
+            let out = "REPORTE TÉCNICO AVANZASTEM - USME\n\n";
+            for (let i = 1; i <= 4; i++) out += `NIVEL ${i}:\n${document.getElementById('t' + i).value}\n\n`;
+            const blob = new Blob([out], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'informe_matematica_usme.txt';
+            a.click();
+        }
+
+        window.onload = () => initChart(1);</script>
+</body>
+</html>

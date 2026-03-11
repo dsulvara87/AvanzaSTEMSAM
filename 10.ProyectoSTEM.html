@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Proyecto Escolar STEM: Diseño de Casa Inteligente</title>
+    <style>
+        /* 1. SISTEMA DE DISEÑO ESTANDARIZADO (CENTRO DE MANDO) */
+        :root {
+            --bg: #02060a;
+            --panel: #0a1118;
+            --accent: #00e0ff;
+            --success: #00ff9d;
+            --warning: #ffae00;
+            --danger: #ff4d4d;
+            --text: #f0f7ff;
+            --border: #1a2c3a;
+            --cyan: #2fb4ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 350px auto 380px;
+        }
+
+        /* 2. PANELES LATERALES */
+        aside {
+            background: var(--panel);
+            padding: 20px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #panelRight {
+            border-right: none;
+            border-left: 1px solid var(--border);
+        }
+
+        h2 {
+            color: var(--accent);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background: rgba(13, 25, 35, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* 3. ÁREA DE DISEÑO (CENTRO) */
+        main {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: radial-gradient(circle at center, #0d1e2d 0%, #02060a 100%);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .design-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .lane {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 300px;
+        }
+
+        .idea-card {
+            background: #1a2c3a;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid var(--accent);
+            cursor: grab;
+            font-size: 12px;
+        }
+
+        /* 4. TERMINAL Y SIMULACIÓN */
+        #console {
+            background: #000;
+            color: var(--success);
+            font-family: 'Consolas', monospace;
+            font-size: 10px;
+            padding: 12px;
+            height: 100px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        .stat-val {
+            font-family: 'Consolas', monospace;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .label-unit {
+            font-size: 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* 5. UI DE ENTRADA */
+        textarea, input {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            outline: none;
+        }
+
+        .btn-action {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #efficiency-gauge {
+            height: 10px;
+            background: #111;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        #gauge-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--success);
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <aside id="panelLeft">
+        <h2>💡 Laboratorio de Ideas</h2>
+        <div class="card">
+            <div style="color:var(--warning); font-weight:bold; margin-bottom:5px;">FASE 1: INVESTIGACIÓN</div>
+            Genera ideas para tu casa inteligente sostenible en Usme. Luego, arrástralas al tablero de diseño.
+        </div>
+
+        <div class="card">
+            <input type="text" id="idea-input" placeholder="Ej: Paneles solares...">
+            <button class="btn-action" id="btn-add-idea" style="background:var(--accent); color:#000;">Agregar al Banco</button>
+        </div>
+
+        <h2>📡 Consola de Ingeniería</h2>
+        <div id="console">> Esperando conceptos de diseño...</div>
+    </aside>
+
+    <main>
+        <div class="card" style="border-left: 4px solid var(--accent);">
+            <h3 style="margin:0; color:var(--accent); font-size:0.9rem;">TABLERO DE DISEÑO Y ESQUEMATIZACIÓN</h3>
+            <p style="font-size:11px; margin:5px 0;">Clasifica tus ideas para optimizar la eficiencia del prototipo.</p>
+        </div>
+
+        <div class="design-board">
+            <div class="lane" id="lane-todo">
+                <span class="label-unit">Banco de Ideas</span>
+            </div>
+            <div class="lane" id="lane-progress">
+                <span class="label-unit">En Esquema</span>
+            </div>
+            <div class="lane" id="lane-done">
+                <span class="label-unit">Implementado</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin:0; color:var(--success); font-size:0.8rem;">SIMULADOR DE IMPACTO AMBIENTAL</h3>
+            <div id="efficiency-gauge"><div id="gauge-fill"></div></div>
+            <div style="display:flex; justify-content:space-between;">
+                <span class="label-unit">Eficiencia Energética: <span id="v-eff" class="stat-val">0%</span></span>
+                <button id="btn-simulate" class="btn-action" style="width:150px; margin:0; font-size:10px; background:var(--success); color:#000;">SIMULAR CICLO</button>
+            </div>
+        </div>
+    </main>
+
+    <aside id="panelRight">
+        <h2>📝 Análisis Final</h2>
+        <div class="card" style="flex-grow:1; display:flex; flex-direction:column; gap:10px;">
+            <span class="label-unit">Justificación del Prototipo</span>
+            <textarea id="analysis-area" style="flex-grow:1;" placeholder="Justifica matemáticamente por qué tu diseño es eficiente para el clima de Usme (+30 car)..."></textarea>
+            <div id="char-count" style="font-size:9px; text-align:right; color:var(--danger);">0 / 30 car.</div>
+        </div>
+
+        <div class="card" style="border-color:var(--success);">
+
+        </div>
+    </aside>
+
+    <script>/* LÓGICA ORIGINAL PRESERVADA Y MEJORADA */
+        const dom = {
+            ideaInput: document.getElementById('idea-input'),
+            btnAddIdea: document.getElementById('btn-add-idea'),
+            todoLane: document.getElementById('lane-todo'),
+            progressLane: document.getElementById('lane-progress'),
+            doneLane: document.getElementById('lane-done'),
+            analysis: document.getElementById('analysis-area'),
+            effVal: document.getElementById('v-eff'),
+            gauge: document.getElementById('gauge-fill'),
+            console: document.getElementById('console'),
+            btnSimulate: document.getElementById('btn-simulate'),
+            btnSave: document.getElementById('btn-save')
+        };
+
+        let efficiency = 0;
+        let ideasCount = 0;
+
+        function log(msg) {
+            const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            dom.console.innerHTML = `<div>[${now}] > ${msg}</div>` + dom.console.innerHTML;
+        }
+
+        // Agregar Ideas
+        dom.btnAddIdea.onclick = () => {
+            const val = dom.ideaInput.value.trim();
+            if (!val) return;
+
+            const id = `idea-${Date.now()}`;
+            const card = document.createElement('div');
+            card.className = 'idea-card';
+            card.id = id;
+            card.draggable = true;
+            card.innerText = val;
+
+            card.ondragstart = (e) => e.dataTransfer.setData('text/plain', id);
+
+            dom.todoLane.appendChild(card);
+            dom.ideaInput.value = "";
+            log(`Idea registrada: "${val}"`);
+        };
+
+        // Drag and Drop
+        [dom.todoLane, dom.progressLane, dom.doneLane].forEach(lane => {
+            lane.ondragover = (e) => e.preventDefault();
+            lane.ondrop = (e) => {
+                e.preventDefault();
+                const id = e.dataTransfer.getData('text/plain');
+                const card = document.getElementById(id);
+                lane.appendChild(card);
+                updateEfficiency();
+            };
+        });
+
+        function updateEfficiency() {
+            const inDone = dom.doneLane.querySelectorAll('.idea-card').length;
+            const inProgress = dom.progressLane.querySelectorAll('.idea-card').length;
+            efficiency = Math.min(100, (inDone * 15) + (inProgress * 5));
+
+            dom.effVal.innerText = `${efficiency}%`;
+            dom.gauge.style.width = `${efficiency}%`;
+        }
+
+        dom.btnSimulate.onclick = () => {
+            if (efficiency < 30) {
+                log("ERROR: Diseño insuficiente para simulación.");
+                return;
+            }
+            log("Iniciando simulación de ciclo térmico y lumínico...");
+            setTimeout(() => {
+                log(`Simulación completada. Rendimiento: ${efficiency}%.`);
+            }, 1500);
+        };
+
+        dom.analysis.oninput = function () {
+            const len = this.value.length;
+            const counter = document.getElementById('char-count');
+            counter.innerText = `${len} / 30 car.`;
+            counter.style.color = len >= 30 ? "var(--success)" : "var(--danger)";
+        };
+
+        dom.btnSave.onclick = () => {
+            if (dom.analysis.value.length < 30) {
+                alert("Justificación insuficiente para el proyecto.");
+                return;
+            }
+            log("Proyecto guardado en el servidor de Innovación.");
+            alert("¡Diseño STEM guardado exitosamente!");
+        };
+
+        // Telemetría Doctoral (CTRL + SHIFT + S)
+        window.onkeydown = (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                let csv = "Timestamp,Eficiencia,Analisis\n";
+                csv += `${new Date().toLocaleTimeString()},${efficiency},${dom.analysis.value.replace(/,/g, '.')}\n`;
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `telemetria_proyecto_stem.csv`;
+                a.click();
+            }
+        };</script>
+</body>
+</html>

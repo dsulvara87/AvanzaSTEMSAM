@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AvanzaSTEM - Ruta de Aprendizaje</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #020412;
+            --primary-glow: #00BFFF; /* DeepSkyBlue */
+            --secondary-glow: #FF00FF; /* Magenta */
+            --completed-glow: #39FF14; /* Neon Green */
+            --locked-color: #4b5563; /* Gray */
+            --text-color: #E0E0E0;
+            --card-bg: rgba(10, 25, 47, 0.6);
+            --border-radius: 15px;
+            --font-main: 'Orbitron', sans-serif;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            background-image: linear-gradient(180deg, #020412 0%, #0a192f 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        header h1 {
+            font-family: var(--font-main);
+            color: #fff;
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--primary-glow);
+        }
+
+        .progress-container {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 50px;
+            height: 28px;
+            width: 100%;
+            margin: 25px 0;
+            border: 1px solid rgba(0, 191, 255, 0.3);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--secondary-glow), var(--primary-glow));
+            border-radius: 50px;
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            line-height: 28px;
+            transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 0 8px var(--primary-glow);
+            font-family: var(--font-main);
+        }
+        
+        #progress-text {
+            font-weight: 400;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .module-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 191, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.1);
+        }
+
+        .module-card:not(.locked):hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 0 25px var(--primary-glow);
+            border-color: var(--primary-glow);
+        }
+        
+        .module-card.completed {
+             border-color: var(--completed-glow);
+             box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+        }
+        
+        .module-card.completed:not(.locked):hover {
+            box-shadow: 0 0 30px var(--completed-glow);
+        }
+
+        .module-card.completed .module-title {
+            color: #aaa;
+            text-decoration: line-through;
+        }
+        
+        .module-card.locked {
+            filter: grayscale(80%);
+            opacity: 0.6;
+            border-color: var(--locked-color);
+            box-shadow: none;
+        }
+
+        .module-card.locked .btn {
+            cursor: not-allowed;
+            background-color: transparent !important;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .module-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+        }
+
+        .module-title {
+            font-family: var(--font-main);
+            font-size: 1.6rem;
+            margin: 0;
+            color: #fff;
+        }
+        
+        .module-description {
+            flex-grow: 1;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 18px;
+            border: 1px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-family: var(--font-main);
+        }
+
+        .btn-primary {
+            background-color: transparent;
+            color: var(--primary-glow);
+            border-color: var(--primary-glow);
+            flex-grow: 1;
+        }
+
+        .btn-primary:not(.disabled):hover {
+            background-color: var(--primary-glow);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .btn-primary.disabled {
+            color: var(--locked-color);
+            border-color: var(--locked-color);
+        }
+
+        .btn-toggle {
+            background-color: transparent;
+            border-color: #6c757d;
+            color: #6c757d;
+            width: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .module-card.completed .btn-toggle {
+            background-color: var(--completed-glow);
+            border-color: var(--completed-glow);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--completed-glow);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="container">
+        <header>
+            <h1>AvanzaSTEM</h1>
+            <p id="progress-text">Tu progreso en la frontera del conocimiento.</p>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+        </header>
+
+        <main>
+            <div id="modulesGrid" class="modules-grid">
+                </div>
+        </main>
+    </div>
+
+    <script>
+        const modules = [
+            { id: 1, title: 'Programacion', icon: '💻', file: '1.Programacion.html', description: 'Desarrolla algoritmos y crea soluciones de software interactivas.' },
+            { id: 2, title: 'Robotica', icon: '🤖', file: '2.Robotica.html', description: 'Diseña y programa sistemas autónomos para la automatización de tareas.' },
+            { id: 3, title: 'CienciadeDatos', icon: '📊', file: '3.CienciadeDatos.html', description: 'Extrae conocimiento y patrones ocultos a partir de grandes volúmenes de datos.' },
+            { id: 4, title: 'EnergiasRenovables', icon: '💡', file: '4.EnergiasRenovables.html', description: 'Investiga y simula el impacto de las fuentes de energía limpias y sostenibles.' },
+            { id: 5, title: 'Impresion3D', icon: '🏗️', file: '5.Impresion3D.html', description: 'Convierte modelos digitales en objetos físicos a través de la manufactura aditiva.' },
+            { id: 6, 'title': 'Matematica', icon: '➗', file: '6.Matematica.html', description: 'Aplica modelos matemáticos para resolver problemas complejos del mundo real.' },
+            { id: 7, title: 'Gamificacion', icon: '🎮', file: '7.Gamificacion.html', description: 'Implementa mecánicas de juego para potenciar el aprendizaje y la motivación.' },
+            { id: 8, title: 'Ciberseguridad', icon: '🔒', file: '8.Ciberseguridad.html', description: 'Defiende sistemas y redes contra amenazas digitales en un entorno simulado.' },
+            { id: 9, title: 'Astrobiologia', icon: '🔭', file: '9.Astrobiologia.html', description: 'Explora las condiciones para la vida en el universo y busca biofirmas en otros mundos.' },
+            { id: 10, title: 'ProyectoSTEM', icon: '🚀', file: '10.Proyecto STEM.html', description: 'Integra todas las disciplinas para diseñar y ejecutar un proyecto de investigación innovador.' }
+        ];
+
+        const modulesGrid = document.getElementById('modulesGrid');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progress-text');
+        
+        let completedModules = new Set();
+
+        function saveProgress() {
+            localStorage.setItem('AvanzaSTEMProgress', JSON.stringify(Array.from(completedModules)));
+        }
+
+        function loadProgress() {
+            const savedProgress = JSON.parse(localStorage.getItem('AvanzaSTEMProgress'));
+            if (savedProgress) {
+                completedModules = new Set(savedProgress);
+            }
+        }
+
+        function updateProgress() {
+            const completedCount = completedModules.size;
+            const totalCount = modules.length;
+            const percentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${Math.round(percentage)}%`;
+            progressText.textContent = `Avance: ${completedCount} de ${totalCount} módulos completados.`;
+        }
+        
+        function toggleModule(moduleId) {
+            // Caso 1: Intentar DESMARCAR un módulo
+            if (completedModules.has(moduleId)) {
+                // Regla: No se puede desmarcar un módulo si el siguiente está completado.
+                if (completedModules.has(moduleId + 1)) {
+                    alert("No puedes desmarcar este módulo porque el siguiente ya está completado. Debes desmarcar el progreso en orden inverso.");
+                    return; // Detiene la ejecución
+                }
+                completedModules.delete(moduleId);
+            } 
+            // Caso 2: Intentar MARCAR un módulo
+            else {
+                const isFirstModule = (moduleId === 1);
+                const previousModuleIsCompleted = completedModules.has(moduleId - 1);
+                
+                // Regla: Solo se puede marcar si es el primer módulo o si el anterior ya fue completado.
+                if (isFirstModule || previousModuleIsCompleted) {
+                    completedModules.add(moduleId);
+                } else {
+                    // Esta alerta no debería aparecer si la interfaz funciona bien, pero es una seguridad extra.
+                    alert("Debes completar el módulo anterior para poder marcar este.");
+                    return; // Detiene la ejecución
+                }
+            }
+            
+            saveProgress();
+            updateProgress();
+            renderModules(); // Vuelve a dibujar toda la interfaz para reflejar los cambios
+        }
+
+        function renderModules() {
+            modulesGrid.innerHTML = '';
+            modules.forEach(module => {
+                const card = document.createElement('div');
+                const isCompleted = completedModules.has(module.id);
+                // La lógica de bloqueo ahora solo depende del estado del módulo anterior.
+                const isLocked = module.id > 1 && !completedModules.has(module.id - 1);
+
+                card.className = 'module-card';
+                if (isCompleted) card.classList.add('completed');
+                if (isLocked) card.classList.add('locked');
+                
+                let actionsHTML;
+                if(isLocked) {
+                    actionsHTML = `
+                        <a href="#" class="btn btn-primary disabled" aria-disabled="true">Bloqueado</a>
+                        <button class="btn btn-toggle" disabled>🔒</button>
+                    `;
+                } else {
+                     actionsHTML = `
+                        <a href="${module.file}" target="_blank" class="btn btn-primary">Iniciar Módulo</a>
+                        <button class="btn btn-toggle">✓</button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="module-header">
+                        <div class="module-icon">${module.icon}</div>
+                        <h2 class="module-title">${module.title}</h2>
+                    </div>
+                    <p class="module-description">${module.description}</p>
+                    <div class="card-actions">
+                        ${actionsHTML}
+                    </div>
+                `;
+                
+                // Solo se añade el evento de click a los botones que NO están bloqueados.
+                if (!isLocked) {
+                    card.querySelector('.btn-toggle').onclick = () => toggleModule(module.id);
+                }
+
+                modulesGrid.appendChild(card);
+            });
+        }
+        
+        // --- ANIMACIÓN DE PARTÍCULAS (SIN CAMBIOS) ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        function setupCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size) {
+                this.x = x; this.y = y; this.directionX = directionX; this.directionY = directionY; this.size = size;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = 'rgba(0, 191, 255, 0.5)';
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                this.x += this.directionX; this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 1;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * .4) - .2;
+                let directionY = (Math.random() * .4) - .2;
+                particlesArray.push(new Particle(x, y, directionX, directionY, size));
+            }
+        }
+
+        function connectParticles() {
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (canvas.width/7) * (canvas.height/7)) {
+                        opacityValue = 1 - (distance/20000);
+                        ctx.strokeStyle = `rgba(0, 191, 255, ${opacityValue})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0,0,innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connectParticles();
+        }
+
+        window.addEventListener('resize', () => {
+            setupCanvas();
+            initParticles();
+        });
+
+        // --- INICIALIZACIÓN GENERAL ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCanvas();
+            initParticles();
+            animate();
+            loadProgress();
+            renderModules();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ciencia de Datos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        :root {
+            --bg: #010409;
+            --panel: #0d1117;
+            --accent: #58a6ff;
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #da3633;
+            --text: #c9d1d9;
+            --border: #30363d;
+            --code-bg: #000000;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Navegación WISE */
+        .wise-nav {
+            display: flex;
+            background: #161b22;
+            padding: 10px 20px 0;
+            gap: 5px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .step-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #0d1117;
+            color: #8b949e;
+            cursor: not-allowed;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+            .step-btn.unlocked {
+                cursor: pointer;
+                color: var(--text);
+            }
+
+            .step-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                border-top: 2px solid var(--accent);
+                font-weight: bold;
+            }
+
+        .workspace {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            grid-template-columns: 380px auto 420px;
+        }
+
+            .workspace.active {
+                display: grid;
+            }
+
+        aside {
+            background: var(--panel);
+            padding: 20px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #panelSTEM {
+            border-right: none;
+            border-left: 1px solid var(--border);
+        }
+
+        /* Componentes */
+        .card {
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .ide-editor {
+            width: 100%;
+            background: var(--code-bg);
+            color: #39ff14;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            resize: none;
+        }
+
+        .btn-eng {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: var(--success);
+            color: white;
+            width: 100%;
+            font-size: 0.7rem;
+        }
+
+        /* Tabla Editable Nivel 2 */
+        .data-table-container {
+            background: #161b22;
+            border-radius: 8px;
+            overflow: auto;
+            height: 350px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            color: var(--text);
+        }
+
+        th {
+            background: #0d1117;
+            padding: 10px;
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+            td[contenteditable="true"] {
+                background: rgba(88, 166, 255, 0.05);
+                color: var(--accent);
+                outline: none;
+            }
+
+        /* Visualización Nivel 3 */
+        .chart-container {
+            background: #161b22;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            flex: 1;
+            min-height: 300px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Reporte Nivel 4 */
+        #slideshow {
+            background: #fff;
+            color: #000;
+            padding: 40px;
+            border-radius: 8px;
+            min-height: 85%;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="wise-nav">
+        <button class="step-btn active unlocked" id="b1" onclick="nav(1)">01. Indagación</button>
+        <button class="step-btn" id="b2" onclick="nav(2)">02. Limpieza Manual</button>
+        <button class="step-btn" id="b3" onclick="nav(3)">03. Galería de Análisis</button>
+        <button class="step-btn" id="b4" onclick="nav(4)">04. Exposición</button>
+    </nav>
+
+    <section id="s1" class="workspace active">
+        <aside>
+            <h2>📋 Diagnóstico</h2>
+            <div class="card">Analiza el video y describe qué variables de Bogotá (Usme) son medibles para una investigación STEM. (Min 80 caracteres).</div>
+            </textarea>
+<textarea id="diag-input" class="ide-editor" style="height: 250px;" oninput="validateL1()"></textarea>
+            <button class="btn-eng" id="btn-lock1" disabled onclick="unlock(2)" style="opacity:0.3; margin-top:15px;">Ir a Datos →</button>
+        </aside>
+
+        <main style="display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 400px;">
+            <div style="width: 90%; max-width: 900px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 15px; border: 2px solid var(--border);">
+
+                <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                        src="https://www.youtube.com/embed/xCP66mnataE?rel=0"
+                        title="YouTube video player"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                </iframe>
+
+            </div>
+        </main>
+        <aside id="panelSTEM"><h2>💡 Ciencia de Datos</h2><div class="card">La importancia radica en transformar la observación en evidencia. </div></aside>
+    </section>
+
+    <section id="s2" class="workspace">
+        <aside>
+            <h2>📂 Ingesta Bogotá</h2>
+            <button class="btn-eng" style="background:#30363d; margin-bottom:5px;" onclick="loadBogotaData('aire')">Aire Usme (PM2.5)</button>
+            <button class="btn-eng" style="background:#30363d; margin-bottom:5px;" onclick="loadBogotaData('hurto')">Hurto Bogotá 2024</button>
+            <hr border="0" style="border-top:1px solid var(--border); margin:10px 0;">
+            <input type="file" id="csv-file" accept=".csv" style="margin-bottom:10px;">
+            <button class="btn-eng" id="btn-lock2" style="display:none; margin-top:15px;" onclick="unlock(3)">Analizar Cambios →</button>
+        </aside>
+        <main style="display:flex; flex-direction:column; padding:25px; background:#010409;">
+            <h3 style="color:var(--accent);">Tabla de Depuración de Datos</h3>
+            <div class="data-table-container">
+                <table id="editable-table">
+                    <thead><tr><th>Eje Temporal/Localidad</th><th>Valor Registrado</th></tr></thead>
+                    <tbody id="table-body"><tr><td colspan="2">Seleccione un dataset para editar...</td></tr></tbody>
+                </table>
+            </div>
+        </main>
+        <aside id="panelSTEM"><h2>🧹 Instrucción</h2><div class="card">Haz clic en los valores de la tabla para corregir anomalías manualmente.</div></aside>
+    </section>
+
+    <section id="s3" class="workspace">
+        <aside>
+            <h2>📊 Indicadores</h2>
+            <div class="card" style="text-align:center">Media ($\mu$): <span id="stat-mean" style="color:var(--warning)">0</span></div>
+            <div class="card" style="text-align:center">Desviación ($\sigma$): <span id="stat-std" style="color:var(--warning)">0</span></div>
+            <button class="btn-eng" onclick="unlock(4)">Generar Exposición →</button>
+        </aside>
+        <main style="display:flex; flex-direction:column; padding:25px; background:#010409;">
+            <div class="chart-container"><canvas id="mainChart"></canvas></div>
+            <div class="chart-grid">
+                <button class="btn-eng" style="background:#161b22;" onclick="setChart('line')">Líneas</button>
+                <button class="btn-eng" style="background:#161b22;" onclick="setChart('bar')">Barras</button>
+                <button class="btn-eng" style="background:#161b22;" onclick="setChart('radar')">Radar</button>
+                <button class="btn-eng" style="background:#161b22;" onclick="setChart('polarArea')">Polar</button>
+                <button class="btn-eng" style="background:#161b22;" onclick="setChart('doughnut')">Dona</button>
+                <button class="btn-eng" style="background:#161b22;" onclick="setChart('bubble')">Dispersión</button>
+            </div>
+        </main>
+        <aside id="panelSTEM"><h2>🧠 Inferencia</h2><textarea class="ide-editor" rows="20" placeholder="¿Qué revela cada tipo de gráfico sobre la problemática?"></textarea></aside>
+    </section>
+
+    <section id="s4" class="workspace">
+        <aside><h2>📝 Ponencia</h2><textarea id="findings-input" class="ide-editor" style="height:450px;" oninput="updateSlide()"></textarea></aside>
+        <main style="background:#010409; padding:20px; overflow-y:auto;">
+            <div id="slideshow">
+                <h1 style="text-align:center;">EXPOSICIÓN DE RESULTADOS</h1>
+                <div id="final-preview"></div>
+            </div>
+            <button class="btn-eng" onclick="exportCSV()" style="margin-top:10px;">💾 Exportar CSV</button>
+        </main>
+        <aside id="panelSTEM"><h2>🎓 Cierre</h2><textarea class="ide-editor" rows="20"></textarea></aside>
+    </section>
+
+    <script>let unlocked = [1], currentData = [], currentLabels = [], myChart = null;
+
+        function nav(n) {
+            if (!unlocked.includes(n)) return;
+            document.querySelectorAll('.workspace, .step-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+            document.getElementById('b' + n).classList.add('active');
+            if (n === 3) syncData();
+        }
+
+        function unlock(n) { if (!unlocked.includes(n)) { unlocked.push(n); document.getElementById('b' + n).classList.add('unlocked'); } nav(n); }
+        function validateL1() { if (document.getElementById('diag-input').value.length > 80) { const b = document.getElementById('btn-lock1'); b.disabled = false; b.style.opacity = "1"; } }
+
+        function loadBogotaData(key) {
+            const set = { aire: { l: ["6am", "9am", "12pm", "3pm", "6pm", "9pm", "12am"], d: [45, 52, 38, 65, 88, 72, 40] }, hurto: { l: ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"], d: [120, 145, 130, 180, 250, 210, 190] } }[key];
+            currentLabels = set.l; currentData = set.d;
+            renderTable();
+            document.getElementById('btn-lock2').style.display = "block";
+        }
+
+        function renderTable() {
+            let h = ""; currentData.forEach((d, i) => { h += `<tr><td>${currentLabels[i]}</td><td contenteditable="true" class="cell">${d}</td></tr>`; });
+            document.getElementById('table-body').innerHTML = h;
+        }
+
+        function syncData() {
+            currentData = Array.from(document.querySelectorAll('.cell')).map(c => parseFloat(c.innerText) || 0);
+            updateStats(); setChart('line');
+        }
+
+        function updateStats() {
+            const m = currentData.reduce((a, b) => a + b, 0) / currentData.length;
+            const s = Math.sqrt(currentData.map(x => Math.pow(x - m, 2)).reduce((a, b) => a + b) / currentData.length);
+            document.getElementById('stat-mean').innerText = m.toFixed(2);
+            document.getElementById('stat-std').innerText = s.toFixed(2);
+        }
+
+        function setChart(t) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: t,
+                data: { labels: currentLabels, datasets: [{ label: 'Magnitud', data: currentData, backgroundColor: ['#58a6ff', '#238636', '#d29922', '#da3633', '#8a63ff', '#ff6384', '#36a2eb'], borderColor: '#58a6ff', borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateSlide() { document.getElementById('final-preview').innerHTML = document.getElementById('findings-input').value.replace(/\n/g, "<br>"); }
+        function exportCSV() {
+            let csv = "Label,Value\n"; currentData.forEach((v, i) => csv += `${currentLabels[i]},${v}\n`);
+            const b = new Blob([csv], { type: 'text/csv' }); const l = document.createElement('a'); l.href = URL.createObjectURL(b); l.download = 'AvanzaSTEM_Data.csv'; l.click();
+        }</script>
+</body>
+</html>

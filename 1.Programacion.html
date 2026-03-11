@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Programación</title>
+    <style>
+        :root {
+            --bg: #0b111a;
+            --panel: #161b22;
+            --accent: #58a6ff;
+            --success: #238636;
+            --danger: #da3633;
+            --text: #c9d1d9;
+            --border: #30363d;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs-header {
+            display: flex;
+            background: #0d1117;
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px 0;
+            gap: 5px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #161b22;
+            color: #8b949e;
+            cursor: not-allowed;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.85rem;
+        }
+
+            .tab-btn.unlocked {
+                cursor: pointer;
+                color: var(--text);
+            }
+
+            .tab-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                border-bottom: 2px solid var(--accent);
+            }
+
+        .tab-content {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+            .tab-content.active {
+                display: flex;
+                gap: 20px;
+            }
+
+        aside.sidebar {
+            width: 300px;
+            background: var(--panel);
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .block-src {
+            padding: 10px;
+            background: #21262d;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: grab;
+            font-size: 13px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #program-canvas {
+            flex-grow: 1;
+            border: 2px dashed var(--accent);
+            border-radius: 8px;
+            padding: 10px;
+            background: #0d1117;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 45vh;
+        }
+
+        .block-active {
+            background: #30363d;
+            border-left: 5px solid var(--accent);
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: white;
+        }
+
+        #viewport {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #090c10;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        #grid {
+            display: grid;
+            border: 2px solid var(--border);
+            background: #000;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #1c2128;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 100%;
+            font-size: 0.75rem;
+        }
+
+        .btn-run {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-clear {
+            background: var(--danger);
+            color: white;
+            opacity: 0.8;
+        }
+
+        .lvl-banner {
+            background: rgba(88, 166, 255, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 10px;
+            width: 95%;
+        }
+
+        textarea {
+            width: 100%;
+            background: #0d1117;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 6px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        /* Estilos Trivia */
+        .quiz-container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .quiz-option {
+            background: #21262d;
+            border: 1px solid var(--border);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            .quiz-option:hover {
+                background: #30363d;
+                border-color: var(--accent);
+            }
+    </style>
+</head>
+<body>
+
+    <nav class="tabs-header">
+        <button class="tab-btn active unlocked" id="bt1" onclick="nav(1)">1. Fundamentos</button>
+        <button class="tab-btn" id="bt2" onclick="nav(2)">2. Simulación (4 Niveles)</button>
+        <button class="tab-btn" id="bt3" onclick="nav(3)">3. Trivia (8 Preguntas)</button>
+        <button class="tab-btn" id="bt4" onclick="nav(4)">4. Bitácora Final</button>
+    </nav>
+
+    <section id="tab1" class="tab-content active" style="justify-content: center;">
+        <div style="max-width: 800px; background: var(--panel); padding: 30px; border-radius: 12px; border: 1px solid var(--border);">
+            <h1>🚀 Proyecto AvanzaSTEM</h1>
+            <p>Observa el video para entender la programación y cómo esta nos ayuda a resolver problemas reales.</p>
+
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin: 20px 0; border: 1px solid var(--border);">
+                <iframe style="position:absolute; top:0; left:0; width:100%; height:100%;"
+                        src="https://www.youtube.com/embed/a7eznAouNak?rel=0"
+                        title="¿Qué es la programación y para qué se utiliza?"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            <button class="btn btn-run" style="width: 250px; margin: 20px auto; display: block;" onclick="unlock(2)">
+                Comenzar Simulación →
+            </button>
+        </div>
+    </section>
+
+    <section id="tab2" class="tab-content">
+        <aside class="sidebar">
+            <h2>⚙️ Bloques</h2>
+            <div class="toolbox">
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Inicio de Misión</div>
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Mover al Norte</div>
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Mover al Sur</div>
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Mover al Este</div>
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Mover al Oeste</div>
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Cargar Suministro</div>
+                <div class="block-src" draggable="true" ondragstart="drag(event)">Descargar Suministro</div>
+            </div>
+            <h2>📋 Algoritmo</h2>
+            <div id="program-canvas" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <div class="controls">
+                <button class="btn btn-run" onclick="runSim()">Ejecutar</button>
+                <button class="btn btn-clear" onclick="clearProg()">Limpiar</button>
+            </div>
+        </aside>
+
+        <main id="viewport">
+            <div class="lvl-banner">
+                <b id="lvl-n">Nivel 1/4</b>: <span id="lvl-m">Recoge las baterías (🔋) para no quedarte sin energía.</span>
+            </div>
+            <div id="grid"></div>
+        </main>
+
+        <aside class="sidebar" style="width: 260px;">
+            <h2>📊 Telemetría</h2>
+            <div style="background:#0d1117; padding:10px; border-radius:8px; font-size:0.85rem">
+                Energía: <b id="ui-bat">100</b>%<br>
+                Carga: <b id="ui-wat">Vacío</b><br>
+                Objetivos: <b id="ui-done">0/1</b>
+            </div>
+            <h2>📓 Notas</h2>
+            <textarea id="notes" rows="6" placeholder="¿Cómo influyen las baterías extras en tu ruta?"></textarea>
+            <button class="btn btn-run" id="next-lvl-btn" style="display:none; margin-top:10px" onclick="advance()">Siguiente Nivel →</button>
+            <button class="btn btn-run" id="to-quiz-btn" style="display:none; margin-top:10px" onclick="unlock(3)">Ir a Trivia →</button>
+        </aside>
+    </section>
+
+    <section id="tab3" class="tab-content">
+        <div class="full-card">
+            <div class="quiz-container">
+                <h2 id="q-num">Pregunta 1/8</h2>
+                <p id="q-text" style="font-size: 1.1rem; margin-bottom: 20px;"></p>
+                <div id="quiz-options"></div>
+                <div id="quiz-feedback" style="margin-top: 20px; font-weight: bold; min-height: 24px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tab4" class="tab-content">
+        <div class="full-card">
+            <h2>📝 Bitácora Final de Investigación</h2>
+            <p>Escribe los hallazgos encontrados en este módulo de AvanzaSTEM:</p>
+            <h3>¿De qué manera la programación sirve para solucionar problemas reales?</h3>
+            <textarea id="final" rows="12" placeholder="Basado en los 4 niveles, las 3 baterías recolectadas y el video inicial..."></textarea>
+            <button class="btn btn-run" style="margin-top:20px" onclick="alert('Datos exportados para análisis')">Finalizar y Descargar Resultados</button>
+        </div>
+    </section>
+
+    <script>let drone = { x: 0, y: 0, bat: 100, wat: false, done: 0, cur: 1 };
+        let open = [1];
+
+        const maps = {
+            1: { s: 6, w: { x: 1, y: 1 }, f: [{ x: 4, y: 4, ok: false }], bats: [{ x: 2, y: 2, v: false }, { x: 5, y: 0, v: false }, { x: 0, y: 4, v: false }] },
+            2: { s: 7, w: { x: 0, y: 0 }, f: [{ x: 5, y: 5, ok: false }], bats: [{ x: 3, y: 3, v: false }, { x: 6, y: 0, v: false }, { x: 1, y: 6, v: false }] },
+            3: { s: 8, w: { x: 4, y: 0 }, f: [{ x: 1, y: 1, ok: false }, { x: 7, y: 7, ok: false }], bats: [{ x: 0, y: 0, v: false }, { x: 7, y: 4, v: false }, { x: 3, y: 6, v: false }] },
+            4: { s: 10, w: { x: 5, y: 5 }, f: [{ x: 0, y: 0, ok: false }, { x: 9, y: 9, ok: false }], bats: [{ x: 2, y: 2, v: false }, { x: 8, y: 1, v: false }, { x: 4, y: 9, v: false }] }
+        };
+
+        const questions = [
+            { q: "¿Qué es un algoritmo?", a: ["Una serie de pasos lógicos", "Un tipo de batería", "Un sensor del dron"], c: 0 },
+            { q: "¿Por qué es importante la eficiencia en la ruta?", a: ["Para gastar más energía", "Para optimizar el uso de batería", "No es importante"], c: 1 },
+            { q: "¿Qué sucede si ejecutas los bloques en el orden incorrecto?", a: ["El dron adivina", "El dron no cumple la misión", "El dron vuela más rápido"], c: 1 },
+            { q: "¿Cuál es el objetivo principal de AvanzaSTEM?", a: ["Jugar video juegos", "Solucionar problemas reales con tecnología", "Dibujar cuadrículas"], c: 1 },
+            { q: "¿Cómo ayuda la programación en desastres?", a: ["Automatiza rescates y logística", "Elimina la necesidad de drones", "No ayuda en nada"], c: 0 },
+            { q: "¿Qué representa la telemetría?", a: ["El color del dron", "Los datos de estado en tiempo real", "El ruido del motor"], c: 1 },
+            { q: "¿Qué comando permite recoger el paquete?", a: ["Descargar", "Cargar Suministro", "Volar al Norte"], c: 1 },
+            { q: "¿Qué aprendiste sobre la batería?", a: ["Es infinita", "Es un recurso crítico que debe gestionarse", "Se carga sola al volar"], c: 1 }
+        ];
+
+        let curQ = 0;
+
+        function nav(n) {
+            if (!open.includes(n)) return;
+            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab' + n).classList.add('active');
+            document.getElementById('bt' + n).classList.add('active');
+            if (n === 2) initGrid();
+            if (n === 3) loadQuiz();
+        }
+
+        function unlock(n) { if (!open.includes(n)) open.push(n); nav(n); }
+
+        function initGrid() {
+            const m = maps[drone.cur];
+            const g = document.getElementById('grid');
+            g.style.gridTemplateColumns = `repeat(${m.s}, 40px)`;
+            g.innerHTML = '';
+            drone.x = 0; drone.y = m.s - 1; drone.bat = 100; drone.wat = false; drone.done = 0;
+            m.bats.forEach(b => b.v = false);
+            document.getElementById('lvl-n').innerText = `Nivel ${drone.cur}/4`;
+            document.getElementById('ui-done').innerText = `0/${m.f.length}`;
+            for (let i = 0; i < m.s * m.s; i++) {
+                const c = document.createElement('div');
+                c.className = 'cell';
+                c.id = `c-${i % m.s}-${Math.floor(i / m.s)}`;
+                g.appendChild(c);
+            }
+            draw();
+        }
+
+        function draw() {
+            const m = maps[drone.cur];
+            document.querySelectorAll('.cell').forEach(c => { c.textContent = ''; c.style.background = ''; });
+            document.getElementById(`c-${m.w.x}-${m.w.y}`).textContent = '💧';
+            m.f.forEach(f => { if (!f.ok) document.getElementById(`c-${f.x}-${f.y}`).textContent = '🔥'; });
+            m.bats.forEach(b => { if (!b.v) document.getElementById(`c-${b.x}-${b.y}`).textContent = '🔋'; });
+            const p = document.getElementById(`c-${drone.x}-${drone.y}`);
+            if (p) p.textContent = drone.wat ? '🚁💧' : '🚁';
+            document.getElementById('ui-bat').innerText = drone.bat;
+            document.getElementById('ui-wat').innerText = drone.wat ? "Cargado" : "Vacío";
+        }
+
+        function drag(e) { e.dataTransfer.setData("cmd", e.target.innerText); }
+        function allowDrop(e) { e.preventDefault(); }
+        function drop(e) {
+            e.preventDefault();
+            const cmd = e.dataTransfer.getData("cmd");
+            const div = document.createElement("div");
+            div.className = "block-active";
+            div.innerHTML = `<span>${cmd}</span> <b style="cursor:pointer;color:var(--danger)" onclick="this.parentElement.remove()">×</b>`;
+            document.getElementById("program-canvas").appendChild(div);
+        }
+
+        function clearProg() { document.getElementById('program-canvas').innerHTML = ''; }
+
+        async function runSim() {
+            const steps = Array.from(document.querySelectorAll("#program-canvas span")).map(s => s.innerText.trim());
+            const m = maps[drone.cur];
+            for (let s of steps) {
+                if (s === "Inicio de Misión") continue;
+                if (s === "Mover al Norte" && drone.y > 0) drone.y--;
+                if (s === "Mover al Sur" && drone.y < m.s - 1) drone.y++;
+                if (s === "Mover al Este" && drone.x < m.s - 1) drone.x++;
+                if (s === "Mover al Oeste" && drone.x > 0) drone.x--;
+
+                // Recoger batería (Andamiaje automático de energía)
+                let bat = m.bats.find(b => b.x === drone.x && b.y === drone.y && !b.v);
+                if (bat) { bat.v = true; drone.bat = Math.min(100, drone.bat + 45); }
+
+                if (s === "Cargar Suministro" && drone.x === m.w.x && drone.y === m.w.y) drone.wat = true;
+                if (s === "Descargar Suministro") {
+                    let f = m.f.find(f => f.x === drone.x && f.y === drone.y && !f.ok);
+                    if (f && drone.wat) { f.ok = true; drone.wat = false; drone.done++; }
+                }
+                drone.bat -= 4; draw();
+                if (drone.bat <= 0) { alert("¡Sin batería!"); break; }
+                await new Promise(r => setTimeout(r, 450));
+            }
+            document.getElementById('ui-done').innerText = `${drone.done}/${m.f.length}`;
+            if (drone.done === m.f.length) {
+                if (drone.cur < 4) document.getElementById('next-lvl-btn').style.display = 'block';
+                else document.getElementById('to-quiz-btn').style.display = 'block';
+            }
+        }
+
+        function advance() { drone.cur++; document.getElementById('next-lvl-btn').style.display = 'none'; initGrid(); }
+
+        // Lógica Trivia
+        function loadQuiz() {
+            const data = questions[curQ];
+            document.getElementById('q-num').innerText = `Pregunta ${curQ + 1}/8`;
+            document.getElementById('q-text').innerText = data.q;
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+            data.a.forEach((opt, i) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerText = opt;
+                div.onclick = () => checkAns(i);
+                container.appendChild(div);
+            });
+            document.getElementById('quiz-feedback').innerText = '';
+        }
+
+        function checkAns(idx) {
+            if (idx === questions[curQ].c) {
+                document.getElementById('quiz-feedback').innerText = "✅ ¡Correcto!";
+                document.getElementById('quiz-feedback').style.color = "var(--success)";
+                setTimeout(() => {
+                    if (curQ < 7) { curQ++; loadQuiz(); }
+                    else { unlock(4); }
+                }, 1000);
+            } else {
+                document.getElementById('quiz-feedback').innerText = "❌ Intenta de nuevo";
+                document.getElementById('quiz-feedback').style.color = "var(--danger)";
+            }
+        }</script>
+</body>
+</html>

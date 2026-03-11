@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Ciberseguridad</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --panel: #161b22;
+            --accent: #58a6ff;
+            --success: #238636;
+            --text: #c9d1d9;
+            --border: #30363d;
+            --cyan: #79c0ff;
+            --danger: #f85149;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVEGACIÓN WISE */
+        .wise-nav {
+            display: flex;
+            background: var(--panel);
+            padding: 10px 20px 0;
+            gap: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .step-btn {
+            padding: 12px 25px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #010409;
+            color: #8b949e;
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            font-size: 13px;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+            .step-btn.unlocked {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .step-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                border-top: 2px solid var(--accent);
+                font-weight: bold;
+                opacity: 1;
+            }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 350px auto;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        aside {
+            background: var(--panel);
+            padding: 25px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+
+        /* PANTALLAS */
+        main {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10;
+            padding: 40px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+            .level-screen.active {
+                display: flex;
+                z-index: 100;
+            }
+
+        /* LABORATORIO Y ESTUDIO DE CASO */
+        .reading-section {
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            line-height: 1.6;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .card-item {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: left;
+        }
+
+            .card-item:hover {
+                border-color: var(--accent);
+                background: rgba(88, 166, 255, 0.05);
+            }
+
+            .card-item.completed {
+                border-color: var(--success);
+                background: rgba(35, 134, 54, 0.05);
+            }
+
+        /* ESTUDIO DE CASO ÚNICO */
+        .case-study-box {
+            border: 2px solid var(--warning);
+            padding: 30px;
+            border-radius: 12px;
+            background: rgba(210, 153, 34, 0.05);
+        }
+
+        .case-step {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+            background: #0d1117;
+        }
+
+        /* MODAL */
+        #challenge-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .challenge-box {
+            background: var(--panel);
+            width: 90%;
+            max-width: 700px;
+            padding: 35px;
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            background: #0d1117;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            resize: none;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #0d1117;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #log-terminal {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--accent);
+            background: #000;
+            padding: 12px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="wise-nav">
+        <button class="step-btn active unlocked" id="b1" onclick="showLevel(1)">01. Indagación</button>
+        <button class="step-btn" id="b2" onclick="showLevel(2)">02. Laboratorio Real</button>
+        <button class="step-btn" id="b3" onclick="showLevel(3)">03. Estudio de Caso</button>
+        <button class="step-btn" id="b4" onclick="showLevel(4)">04. Evaluación</button>
+    </nav>
+
+    <div class="workspace">
+        <aside>
+            <h2 style="font-size: 1.1rem; color: var(--accent);">Bitácora Forense</h2>
+            <div id="status-info" style="font-size: 13px; line-height: 1.8;">
+                <b>FASE:</b> <span id="v-status">Teoría Inicial</span><br>
+                <b>AVANCE:</b> <span id="v-prog">0/10</span> registros.<br>
+            </div>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 20px 0;">
+            <div id="log-terminal">
+                > Cargando protocolos de ciberdefensa...<br>
+                > Nodo central activo.
+            </div>
+        </aside>
+
+        <main>
+            <div id="level-1" class="level-screen active">
+                <h1>FASE 01: INDAGACIÓN Y EFECTOS</h1>
+                <div class="reading-section">
+                    <h3>Fundamentos de Ciberseguridad</h3>
+                    <p>La ciberseguridad protege la infraestructura digital garantizando la <b>Tríada CIA</b>: Confidencialidad, Integridad y Disponibilidad. Un fallo en estos pilares puede paralizar servicios esenciales en Usme.</p>
+                </div>
+                <div class="video-box" style="max-width: 900px; margin: 20px auto; position: relative;">
+
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; border: 2px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.4);">
+
+                        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                                src="https://www.youtube.com/embed/3G8yJaudGC0?rel=0"
+                                title="YouTube video player"
+                                frameborder="0"
+                                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                allowfullscreen>
+                        </iframe>
+
+                    </div>
+
+                    <p style="text-align: center; margin-top: 10px; font-size: 0.95rem; color: var(--text); font-style: italic;">
+                        Video introductorio – Haz clic para reproducir
+                    </p>
+
+                </div>
+                <div class="reading-section">
+                    <p><b>Análisis de Entrada:</b> Basado en el video, describa un problema de seguridad que afectaría el bombeo de agua en Usme (mín. 50 car.).</p>
+                    <textarea id="reflexion-1" rows="3"></textarea>
+                    <button class="btn-primary" onclick="validateLevel1()">ENTRAR AL LABORATORIO TÉCNICO</button>
+                </div>
+            </div>
+
+            <div id="level-2" class="level-screen">
+                <h1>FASE 02: LABORATORIO DE VECTORES TÉCNICOS</h1>
+                <p>Ejecute el análisis técnico sobre las estaciones de vulnerabilidad para recolectar evidencia forense.</p>
+                <div class="grid-container" id="lab-container"></div>
+            </div>
+
+            <div id="level-3" class="level-screen">
+                <h1>FASE 03: ESTUDIO DE CASO - ATAQUE AL ACUEDUCTO USME</h1>
+                <div class="case-study-box">
+                    <div class="case-step">
+                        <strong>Escenario:</strong> Un adversario ha ganado acceso al sistema SCADA que controla la presión de agua de la localidad de Usme.
+                    </div>
+                    <div class="case-step">
+                        <strong>Hallazgo:</strong> Se detecta un incremento inusual en la telemetría del Tanque El Dorado. El adversario intenta forzar las válvulas de salida.
+                    </div>
+                    <p>Como analista líder, debe resolver los 4 nodos críticos de este caso para estabilizar la red.</p>
+                    <div class="grid-container" id="case-container"></div>
+                </div>
+            </div>
+
+            <div id="level-4" class="level-screen">
+                <h1>FASE 04: EVALUACIÓN Y PROPUESTA</h1>
+                <div class="reading-section">
+                    <h3>Síntesis Científica</h3>
+                    <p>Utilice la evidencia recolectada en el Laboratorio (Nivel 2) y el Caso del Acueducto (Nivel 3) para proponer una solución técnica integral.</p>
+                </div>
+                <textarea id="final-report" rows="15" placeholder="Redacte su informe de solución..."></textarea>
+                <button class="btn-primary" onclick="descargarInforme()">EXPORTAR INVESTIGACIÓN FINAL</button>
+            </div>
+
+            <div id="challenge-overlay">
+                <div class="challenge-box">
+                    <h2 id="ch-title" style="margin:0; color:var(--accent);">Analítica</h2>
+                    <div id="ch-reading" class="reading-section" style="font-size:12px; margin-top: 15px;"></div>
+                    <p id="ch-task" style="font-weight: bold; color: var(--cyan); margin-top: 15px;"></p>
+                    <textarea id="ch-input" rows="4"></textarea>
+                    <button class="btn-primary" id="btn-save-ch">REGISTRAR HALLAZGO</button>
+                    <button class="btn-primary" style="background:#333; color:#fff;" onclick="closeChallenge()">CERRAR</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>const LABS = [
+            { id: 1, n: "Inyección SQL", r: "Análisis de entradas en el portal de la Alcaldía.", t: "Explique cómo los 'Prepared Statements' protegen la base de datos." },
+            { id: 2, n: "Phishing", r: "Campaña de correos suplantando al personal de salud.", t: "Identifique 2 protocolos técnicos para verificar el emisor." },
+            { id: 3, n: "Fuerza Bruta", r: "Intentos de acceso al puerto SSH de los semáforos.", t: "Justifique el uso de autenticación por llave pública." },
+            { id: 4, n: "Ransomware", r: "Cifrado detectado en el servidor de catastro local.", t: "Defina la importancia de la criptografía asimétrica." },
+            { id: 5, n: "DDoS Capa 7", r: "Saturación de peticiones HTTP al sitio de servicios.", t: "Explique el funcionamiento de un WAF en el filtrado." },
+            { id: 6, n: "Sniffing", r: "Tráfico capturado en protocolos obsoletos.", t: "Argumente la migración obligatoria a TLS 1.3." },
+            { id: 7, n: "Malware Zero-Day", r: "Script desconocido en el nodo de transporte.", t: "Defina qué es el 'Análisis de Sandbox'." },
+            { id: 8, n: "XSS Persistente", r: "Inyección de scripts en foros de participación.", t: "¿Cómo la política CSP previene este ataque?" },
+            { id: 9, n: "Spoofing ARP", r: "Dispositivo fingiendo ser el Gateway de la red.", t: "Describa el protocolo de inspección dinámica de ARP." },
+            { id: 10, n: "Backdoor", r: "Conexión remota persistente no autorizada.", t: "Defina el principio de 'Privilegio Mínimo'." }
+        ];
+
+        const CASE_STEPS = [
+            { id: 11, n: "Paso 1: Aislamiento", r: "CASO ACUEDUCTO: El atacante se mueve lateralmente en la red VLAN 10.", t: "Proponga una medida de segmentación para aislar el control de las bombas." },
+            { id: 12, n: "Paso 2: Autenticación", r: "CASO ACUEDUCTO: El acceso se logró mediante una contraseña débil del operario.", t: "¿Por qué el 2FA es vital en infraestructuras críticas?" },
+            { id: 13, n: "Paso 3: Integridad", r: "CASO ACUEDUCTO: Los logs de presión están siendo borrados por un script.", t: "¿Cómo garantizan los registros inmutables la trazabilidad forense?" },
+            { id: 14, n: "Paso 4: Hardening", r: "CASO ACUEDUCTO: El sistema SCADA tiene puertos innecesarios abiertos.", t: "Diseñe un protocolo de endurecimiento para el PLC de control de agua." }
+        ];
+
+        let unlocked = [1], currentLevel = 1, finished = [], results = [];
+        let activeObj = null;
+
+        function validateLevel1() {
+            if (document.getElementById('reflexion-1').value.length < 50) return alert("Análisis insuficiente.");
+            unlock(2); showLevel(2);
+            logTerminal("INVESTIGACIÓN AUTORIZADA. ACCESO AL LABORATORIO.");
+        }
+
+        function unlock(n) {
+            if (!unlocked.includes(n)) {
+                unlocked.push(n);
+                document.getElementById(`b${n}`).classList.add('unlocked');
+            }
+        }
+
+        function showLevel(n) {
+            if (!unlocked.includes(n)) return;
+            currentLevel = n;
+            document.querySelectorAll('.level-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`level-${n}`).classList.add('active');
+            document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`b${n}`).classList.add('active');
+            document.getElementById('v-status').innerText = n == 1 ? "Indagación" : n == 2 ? "Laboratorio" : n == 3 ? "Caso Estudio" : "Evaluación";
+            renderList();
+        }
+
+        function renderList() {
+            const contId = currentLevel == 2 ? 'lab-container' : (currentLevel == 3 ? 'case-container' : null);
+            if (!contId) return;
+            const target = document.getElementById(contId);
+            target.innerHTML = "";
+            const list = currentLevel == 2 ? LABS : CASE_STEPS;
+
+            list.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `card-item ${finished.includes(item.id) ? 'completed' : ''}`;
+                div.innerHTML = `<b>${item.n}</b>`;
+                div.onclick = () => openChallenge(item);
+                target.appendChild(div);
+            });
+            document.getElementById('v-prog').innerText = `${finished.filter(id => currentLevel == 2 ? id <= 10 : id > 10).length}/${list.length}`;
+        }
+
+        function openChallenge(item) {
+            activeObj = item;
+            document.getElementById('challenge-overlay').style.display = 'flex';
+            document.getElementById('ch-title').innerText = item.n;
+            document.getElementById('ch-reading').innerText = item.r;
+            document.getElementById('ch-task').innerText = item.t;
+            document.getElementById('ch-input').value = "";
+        }
+
+        function closeChallenge() { document.getElementById('challenge-overlay').style.display = 'none'; }
+
+        document.getElementById('btn-save-ch').onclick = () => {
+            const val = document.getElementById('ch-input').value;
+            if (val.length < 30) return alert("Reporte técnico insuficiente.");
+            if (!finished.includes(activeObj.id)) finished.push(activeObj.id);
+            results.push({ id: activeObj.id, t: activeObj.n, r: val });
+            closeChallenge();
+            renderList();
+            logTerminal(`Hallazgo registrado en: ${activeObj.n}`);
+
+            const currentList = currentLevel == 2 ? LABS : CASE_STEPS;
+            const phaseProgress = finished.filter(id => currentLevel == 2 ? id <= 10 : id > 10).length;
+            if (phaseProgress === currentList.length) unlock(currentLevel + 1);
+        };
+
+        function logTerminal(m) {
+            const c = document.getElementById('log-terminal');
+            c.innerHTML += `> ${m}<br>`; c.scrollTop = c.scrollHeight;
+        }
+
+        function descargarInforme() {
+            let output = "REPORTE CIENTÍFICO FINAL - USME 4.0\n\nPROPUESTA:\n" + document.getElementById('final-report').value + "\n\nBITÁCORA:\n";
+            results.forEach(res => output += `- [${res.t}]: ${res.r}\n`);
+            const blob = new Blob([output], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "investigacion_forense.txt"; a.click();
+        }
+
+        renderList();</script>
+</body>
+</html>

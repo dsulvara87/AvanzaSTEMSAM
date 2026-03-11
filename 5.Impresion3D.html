@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>3D</title>
+    <style>
+        :root {
+            --bg: #02060a; --panel: #0a1118; --accent: #ff7a18; --success: #00ff9d;
+            --danger: #ff4d4d; --text: #f0f7ff; --border: #1a2c3a;
+        }
+
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* NAVEGACIÓN */
+        .wise-nav { display: flex; background: #161b22; padding: 12px 20px 0; gap: 8px; border-bottom: 3px solid var(--accent); }
+        .step-btn { padding: 12px 20px; border: 1px solid var(--border); border-bottom: none; background: #0d1117; color: #5c7080; cursor: not-allowed; border-radius: 8px 8px 0 0; font-size: 0.7rem; text-transform: uppercase; transition: 0.3s; }
+        .step-btn.unlocked { cursor: pointer; color: var(--text); }
+        .step-btn.active { background: var(--bg); color: var(--accent); border-top: 3px solid var(--accent); font-weight: bold; }
+
+        .workspace { display: none; flex: 1; overflow: hidden; grid-template-columns: 350px auto 350px; }
+        .workspace.active { display: grid; }
+
+        aside { background: var(--panel); padding: 20px; border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        #panelSTEM { border-right: none; border-left: 1px solid var(--border); background: #091018; }
+
+        .edu-card { background: rgba(255, 255, 255, 0.03); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent); font-size: 0.8rem; }
+        .ide-editor { width: 100%; background: #000; color: #39ff14; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-family: 'Consolas', monospace; font-size: 0.85rem; resize: none; }
+        .btn-eng { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; background: var(--success); color: #000; }
+        .btn-eng:disabled { opacity: 0.3; }
+
+        /* VISOR 3D */
+        .canvas-container { background: #000; border: 2px solid var(--border); border-radius: 12px; position: relative; flex: 1; display: flex; flex-direction: column; margin: 10px; overflow: hidden; }
+        .view-3d { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; perspective: 1500px; cursor: grab; }
+        #build-plate { position: relative; transform-style: preserve-3d; transition: transform 0.1s; width: 400px; height: 400px; background: rgba(47, 180, 255, 0.1); border: 1px solid var(--accent); }
+        .shape-3d { position: absolute; transform-style: preserve-3d; }
+        .face { position: absolute; background: rgba(255, 122, 24, 0.5); border: 1px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
+        
+        .toolbar-3d { position: absolute; left: 10px; top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; z-index: 100; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; }
+        .tool-btn { background: var(--border); border: 1px solid var(--border); color: white; padding: 5px; cursor: pointer; font-size: 10px; }
+        .tool-btn.danger { border-color: var(--danger); color: var(--danger); }
+    </style>
+</head>
+<body>
+
+    <nav class="wise-nav">
+        <button class="step-btn active unlocked" id="b1" onclick="nav(1)">01. Indagación</button>
+        <button class="step-btn" id="b2" onclick="nav(2)">02. Presupuesto</button>
+        <button class="step-btn" id="b3" onclick="nav(3)">03. Ingeniería CAD</button>
+        <button class="step-btn" id="b4" onclick="nav(4)">04. Reporte Final 3D</button>
+    </nav>
+
+    <section id="s1" class="workspace active">
+        <aside>
+            <h2>🔍 Diagnóstico Inicial</h2>
+            <div class="edu-card">Investiga: ¿Cómo la manufactura aditiva impacta la competitividad de las PYMES en Bogotá?</div>
+            <textarea id="t1" class="ide-editor" style="height: 150px;" placeholder="Escribe tu análisis aquí (mín 80 caracteres)..." oninput="checkLock(1)"></textarea>
+            <button class="btn-eng" id="l1" disabled onclick="unlock(2)">Siguiente Fase →</button>
+        </aside>
+        <main style="display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 400px;">
+            <div style="width: 90%; max-width: 900px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 15px; border: 2px solid var(--border);">
+
+                <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                        src="https://www.youtube.com/embed/_TFc3DM6wDE?rel=0"
+                        title="What is 3D printing and how does it work?"
+                        frameborder="0"
+                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                </iframe>
+
+            </div>
+        </main>
+        <aside id="panelSTEM">
+            <h2>🌍 Contexto Global</h2>
+            <div class="edu-card">La impresión 3D no solo ahorra material, sino que permite diseños que antes eran imposibles de fabricar.</div>
+        </aside>
+    </section>
+
+    <section id="s2" class="workspace">
+        <aside>
+            <h2>📊 Gestión Económica</h2>
+            <div class="edu-card">Completa la matriz de costos para asegurar la viabilidad del proyecto.</div>
+            <button class="btn-eng" onclick="unlock(3)">Validar Presupuesto →</button>
+        </aside>
+        <main style="display:flex; justify-content:center; align-items:center;">
+            <table style="width: 80%; border-collapse: collapse; background: #0d1117; color: white;">
+                <tr style="border-bottom: 2px solid var(--accent);">
+                    <th style="padding: 10px; text-align: left;">Insumo</th>
+                    <th>Costo Unit.</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">Filamento (g)</td>
+                    <td>$95</td>
+                    <td><input type="number" id="q-fil" value="50" class="ide-editor" oninput="calc()"></td>
+                    <td id="sub-f">$0</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">Energía (h)</td>
+                    <td>$420</td>
+                    <td><input type="number" id="q-ene" value="4" class="ide-editor" oninput="calc()"></td>
+                    <td id="sub-e">$0</td>
+                </tr>
+                <tr style="background: rgba(0,255,157,0.1);">
+                    <td colspan="3" style="padding: 15px; text-align: right; font-weight: bold;">TOTAL ESTIMADO:</td>
+                    <td id="res-t" style="color: var(--success); font-weight: bold;">$0</td>
+                </tr>
+            </table>
+        </main>
+        <aside id="panelSTEM">
+            <h2>⚙️ Eficiencia</h2>
+            <div class="edu-card">El costo energético es un factor crítico en impresiones de larga duración.</div>
+        </aside>
+    </section>
+
+    <section id="s3" class="workspace">
+        <aside>
+            <h2>🏗️ Estación CAD 3D</h2>
+            <label>Escala (mm):</label><input type="range" id="s-size" min="20" max="120" value="60">
+            <label>Eje X:</label><input type="range" id="p-x" min="0" max="340" value="170">
+            <label>Eje Y:</label><input type="range" id="p-y" min="0" max="340" value="170">
+            <label>Altura (Z):</label><input type="range" id="p-z" min="0" max="200" value="0">
+            <hr>
+            <button class="btn-eng" onclick="exportSTL()" style="background:var(--accent); margin-bottom:5px;">⬇️ Exportar STL</button>
+            <button class="btn-eng" onclick="exportGCODE()" style="background:var(--success);">⬇️ Generar GCODE</button>
+            <button class="btn-eng" onclick="unlock(4)" style="margin-top: 15px;">Finalizar Diseño →</button>
+        </aside>
+        <main class="canvas-container">
+            <div class="toolbar-3d">
+                <button class="tool-btn" onclick="addShape('cube')">CUBO</button>
+                <button class="tool-btn" onclick="addShape('cyl')">CILINDRO</button>
+                <button class="tool-btn" onclick="addShape('sph')">ESFERA</button>
+                <button class="tool-btn" onclick="addShape('pyr')">PIRÁMIDE</button>
+                <button class="tool-btn" onclick="addShape('tor')">TOROIDE</button>
+                <button class="tool-btn" onclick="addShape('con')">CONO</button>
+                <button class="tool-btn danger" onclick="clearPlate()" style="grid-column: span 2;">🧹 LIMPIAR PLATO</button>
+            </div>
+            <div class="view-3d" id="v3d">
+                <div id="build-plate" style="transform: rotateX(60deg) rotateZ(45deg);"></div>
+            </div>
+        </main>
+        <aside id="panelSTEM">
+            <h2>🔬 Geometría</h2>
+            <textarea id="t3" class="ide-editor" rows="15" placeholder="Escribe la justificación técnica de tu ensamble..."></textarea>
+        </aside>
+    </section>
+
+    <section id="s4" class="workspace">
+        <aside>
+            <h2>📋 Reporte Final 3D</h2>
+            <button class="btn-eng" onclick="window.print()">🖨️ Imprimir Reporte</button>
+        </aside>
+        <main style="background: white; color: black; padding: 40px; overflow-y: auto;">
+            <div id="report" style="line-height: 1.6;">
+                <h1 style="border-bottom: 2px solid black;">REPORTE FINAL DE MANUFACTURA 3D</h1>
+                <p><b>Análisis de Investigación:</b> <span id="r-ind"></span></p>
+                <p><b>Presupuesto Total:</b> <span id="r-cost"></span></p>
+                <p><b>Justificación Técnica:</b> <span id="r-cad"></span></p>
+            </div>
+        </main>
+        <aside id="panelSTEM">
+            <h2>🏁 Conclusión</h2>
+            <div class="edu-card">Este reporte es el documento final que valida el prototipo ante un comité técnico.</div>
+        </aside>
+    </section>
+
+    <script>
+        let unlocked = [1], shapes = [], isDragging = false, rotX = 60, rotZ = 45, lastX, lastY;
+        const plate = document.getElementById('build-plate');
+
+        function nav(n) {
+            if (!unlocked.includes(n)) return;
+            document.querySelectorAll('.workspace, .step-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('s' + n).classList.add('active');
+            document.getElementById('b' + n).classList.add('active');
+            if(n === 4) genReport();
+        }
+
+        function unlock(n) { unlocked.push(n); document.getElementById('b' + n).classList.add('unlocked'); nav(n); }
+        function checkLock(n) { if (document.getElementById('t' + n).value.length > 80) document.getElementById('l1').disabled = false; }
+
+        function calc() {
+            const f = 95 * document.getElementById('q-fil').value;
+            const e = 420 * document.getElementById('q-ene').value;
+            document.getElementById('sub-f').innerText = "$" + f;
+            document.getElementById('sub-e').innerText = "$" + e;
+            document.getElementById('res-t').innerText = "$" + (f + e);
+        }
+
+        // CONTROL DE ÓRBITA
+        document.getElementById('v3d').onmousedown = (e) => { isDragging = true; lastX = e.clientX; lastY = e.clientY; };
+        window.onmouseup = () => isDragging = false;
+        window.onmousemove = (e) => {
+            if (!isDragging) return;
+            rotZ += (e.clientX - lastX) * 0.5;
+            rotX -= (e.clientY - lastY) * 0.5;
+            rotX = Math.max(10, Math.min(90, rotX));
+            plate.style.transform = `rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+            lastX = e.clientX; lastY = e.clientY;
+        };
+
+        function addShape(type) {
+            const s = parseInt(document.getElementById('s-size').value);
+            const x = document.getElementById('p-x').value;
+            const y = document.getElementById('p-y').value;
+            const z = document.getElementById('p-z').value;
+
+            const container = document.createElement('div');
+            container.className = "shape-3d";
+            container.style.width = s + "px"; container.style.height = s + "px";
+            container.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+
+            ['top', 'front', 'right'].forEach(f => {
+                const face = document.createElement('div');
+                face.className = `face ${f}`;
+                face.style.width = s + "px"; face.style.height = s + "px";
+                if(f === 'top') face.style.transform = `translateZ(${s}px)`;
+                if(f === 'front') face.style.transform = `rotateX(-90deg) translateY(${s/2}px)`;
+                if(f === 'right') face.style.transform = `rotateY(90deg) translateX(${s/2}px)`;
+                
+                if(type === 'sph' || type === 'cyl') face.style.borderRadius = "50%";
+                if(type === 'pyr') face.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+                
+                container.appendChild(face);
+            });
+
+            plate.appendChild(container);
+            shapes.push({type, x, y, z});
+        }
+
+        function clearPlate() {
+            if(confirm("¿Estás seguro de que quieres borrar todo el diseño?")) {
+                plate.innerHTML = "";
+                shapes = [];
+            }
+        }
+
+        function exportSTL() { alert("Exportando geometría de " + shapes.length + " piezas..."); }
+        function exportGCODE() { alert("Generando código G de manufactura..."); }
+
+        function genReport() {
+            document.getElementById('r-ind').innerText = document.getElementById('t1').value;
+            document.getElementById('r-cost').innerText = document.getElementById('res-t').innerText;
+            document.getElementById('r-cad').innerText = document.getElementById('t3').value;
+        }
+
+        calc();
+    </script>
+</body>
+</html>

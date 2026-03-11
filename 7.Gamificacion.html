@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Ciencia Gamificada</title>
+    <style>
+        :root {
+            --bg: #02060a;
+            --panel: #0a1118;
+            --accent: #00ff9d;
+            --success: #00ff9d;
+            --text: #f0f7ff;
+            --border: #1a2c3a;
+            --cyan: #2fb4ff;
+            --danger: #ff4d4d;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wise-nav {
+            display: flex;
+            background: #161b22;
+            padding: 12px 20px 0;
+            gap: 8px;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .step-btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            background: #0d1117;
+            color: #5c7080;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: 0.3s;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+            .step-btn.unlocked {
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .step-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                border-top: 3px solid var(--accent);
+                font-weight: bold;
+                opacity: 1;
+            }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 380px auto 380px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        aside {
+            background: var(--panel);
+            padding: 20px;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #panelRight {
+            border-left: 1px solid var(--border);
+            border-right: none;
+        }
+
+        main {
+            padding: 20px;
+            background: radial-gradient(circle at center, #0d1e2d 0%, #02060a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+            background: rgba(0,0,0,0.5);
+        }
+
+        #avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 10px;
+            position: absolute;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--accent);
+            border: 2px solid #fff;
+            left: 50px;
+            top: 50px;
+            transition: 0.1s;
+        }
+
+        .node {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 255, 157, 0.2);
+            border: 2px solid var(--accent);
+            z-index: 50;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+        }
+
+            .node.solved {
+                background: var(--success);
+                border-color: #fff;
+                box-shadow: 0 0 15px var(--success);
+                color: #000;
+            }
+
+        #briefing, #final-report-area {
+            position: absolute;
+            inset: 0;
+            background: var(--bg);
+            z-index: 300;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .reading-box {
+            background: rgba(47, 180, 255, 0.1);
+            border-left: 4px solid var(--cyan);
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.6;
+            font-size: 13.5px;
+        }
+
+        #challenge-ui {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            background: var(--panel);
+            border: 2px solid var(--accent);
+            padding: 25px;
+            border-radius: 15px;
+            z-index: 500;
+            display: none;
+            box-shadow: 0 0 100px #000;
+        }
+
+        textarea {
+            width: 95%;
+            background: #000;
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            resize: none;
+            outline: none;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        #console {
+            background: #000;
+            color: var(--success);
+            font-family: monospace;
+            font-size: 10px;
+            padding: 10px;
+            height: 100px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="wise-nav">
+        <button class="step-btn active unlocked" id="b1" onclick="changeWISE(1)">01. Indagación</button>
+        <button class="step-btn" id="b2" onclick="changeWISE(2)">02. Modelación</button>
+        <button class="step-btn" id="b3" onclick="changeWISE(3)">03. Simulación</button>
+        <button class="step-btn" id="b4" onclick="changeWISE(4)">04. Informe Final</button>
+    </nav>
+
+    <div class="workspace">
+        <aside>
+            <h2>🕵️ Investigador STEM</h2>
+            <div id="status-card" class="card">
+                <b>FASE:</b> <span id="phase-txt">Briefing</span><br>
+                <b>RETO:</b> <span id="progreso-nodos">0/10</span> estaciones.
+            </div>
+            <h2>📡 Consola</h2>
+            <div id="console">> Esperando inicio de misión...</div>
+        </aside>
+
+        <main>
+            <div id="map" tabindex="0">
+                <div id="avatar">🕵️</div>
+
+                <div id="briefing">
+                    <h1 style="color:var(--accent); text-align:center;">NIVEL 1: EMERGENCIA SALUD USME</h1>
+                    <div class="reading-box">
+                        <strong>LA PROBLEMÁTICA:</strong> Un brote bacteriano en Usme requiere intervención STEM. <br>
+                        <strong>OBJETIVO:</strong> Fundamenta cómo la ciencia ayuda a contener esta epidemia (mín. 40 car.).
+                    </div>
+                    <textarea id="reflexion-inicial" rows="3" placeholder="Tu análisis inicial..."></textarea>
+                    <button class="btn" onclick="iniciarMision()">ACTIVAR UNIDAD</button>
+                </div>
+
+                <div id="final-report-area" style="display:none; z-index:250;">
+                    <h1 style="color:var(--accent);">FASE 04: SÍNTESIS Y SOLUCIÓN</h1>
+                    <div class="reading-box">Redacta el informe final y plantea una solución basada en tus hallazgos.</div>
+                    <textarea id="final-report-text" rows="10" placeholder="Escribe aquí tu propuesta final..."></textarea>
+                    <button class="btn" onclick="descargar()">EXPORTAR INVESTIGACIÓN</button>
+                </div>
+            </div>
+
+            <div id="challenge-ui">
+                <h3 id="node-name" style="margin:0; color:var(--accent);">Analítica STEM</h3>
+                <div id="node-reading" style="font-size:12px; background:rgba(0,255,157,0.05); padding:10px; border-radius:8px; margin:10px 0;"></div>
+                <p id="challenge-text" style="font-size:13px; color:#ccc; font-style:italic;"></p>
+                <textarea id="challenge-input" rows="3"></textarea>
+                <button class="btn" id="btn-submit">ENVIAR A BASE</button>
+            </div>
+        </main>
+
+        <aside id="panelRight">
+            <h2>📋 Bitácora</h2>
+            <div id="notebook" style="flex-grow:1; overflow-y:auto; font-size:11px; background:#050a0f; border:1px solid var(--border); padding:10px;">
+                <span style="color:var(--cyan); font-weight:bold;">EVIDENCIAS:</span>
+                <div id="evidence-list" style="margin-top:10px;"></div>
+            </div>
+        </aside>
+    </div>
+
+    <script>const NODOS = {
+            2: [
+                { id: 1, n: "Foco 1", r: "La bacteria se duplica cada 2 horas.", q: "M: Halla la población tras 10 horas si inicias con 10.", x: 80, y: 80 },
+                { id: 2, n: "Humedad", r: "35% de Usme tiene humedad crítica.", q: "M: En 1000 casas, ¿cuántas están en riesgo?", x: 250, y: 120 },
+                { id: 3, n: "Factor R0", r: "El factor R0 es de 3.5 por infectado.", q: "M: Calcula infectados en 3ra generación.", x: 480, y: 90 },
+                { id: 4, n: "Frío", r: "A 8°C la bacteria vive un 50% más.", q: "C: ¿Por qué el frío ayuda a la bacteria?", x: 580, y: 200 },
+                { id: 5, n: "App", r: "Rastreo reduce tiempo en 40%.", q: "T: Justifica el uso de tecnología móvil.", x: 120, y: 250 },
+                { id: 6, n: "Fármaco", r: "Se requieren 3mg por cada 5kg.", q: "M: ¿Dosis para un paciente de 60kg?", x: 300, y: 220 },
+                { id: 7, n: "Estornudo", r: "Radio de contagio de 2.5 metros.", q: "M: Calcula el área circular (π*r²).", x: 520, y: 320 },
+                { id: 8, n: "UCI", r: "5% requiere respiración asistida.", q: "M: En 400 casos, ¿cuántos respiradores?", x: 150, y: 400 },
+                { id: 9, n: "Pruebas", r: "70% de las PCR son positivas.", q: "M: En 50 pruebas, ¿cuántas positivas?", x: 380, y: 420 },
+                { id: 10, n: "Curva L2", r: "y = -2x + 50.", q: "M: ¿En cuántos días y llega a cero?", x: 600, y: 480 }
+            ],
+            3: [
+                { id: 11, n: "Módulo", r: "Habitación de 5m x 4m.", q: "I: Área total para 15 módulos.", x: 100, y: 100 },
+                { id: 12, n: "Ducto", r: "Radio del ducto 0.3m.", q: "I: Área transversal (π*r²).", x: 300, y: 70 },
+                { id: 13, n: "Cloro", r: "Tanque de 5000 litros.", q: "M: ¿Cuántos m³ son 5000L?", x: 500, y: 110 },
+                { id: 14, n: "Rampa", r: "Base 15m, altura 8m.", q: "I: Halla el largo (hipotenusa).", x: 150, y: 280 },
+                { id: 15, n: "Presión", r: "Fuerza 120N en 2m².", q: "I: Calcula Presión (F/A).", x: 350, y: 250 },
+                { id: 16, n: "Domo", r: "Radio 4m.", q: "I: Volumen de aire (2/3*π*r³).", x: 550, y: 300 },
+                { id: 17, n: "Paneles", r: "2m² generan 300W.", q: "T: En 20 paneles, ¿cuántos kW?", x: 180, y: 450 },
+                { id: 18, n: "Suelo", r: "Soporta 500kg/m².", q: "I: Para 2500kg, ¿área mínima?", x: 420, y: 380 },
+                { id: 19, n: "Batería", r: "12V y 50A.", q: "M: Potencia en Vatios (V*I).", x: 600, y: 420 },
+                { id: 20, n: "Valla", r: "Octágono lado 10m.", q: "M: Perímetro total.", x: 320, y: 520 }
+            ]
+        };
+
+        let currentLevel = 1, unlocked = [1], pos = { x: 50, y: 50 }, keys = {};
+        let activeChallenge = null, finishedNodes = 0, results = [];
+
+        function iniciarMision() {
+            if (document.getElementById('reflexion-inicial').value.length < 40) return alert("Reflexión insuficiente.");
+            document.getElementById('briefing').style.display = 'none';
+            unlocked.push(2); document.getElementById('b2').classList.add('unlocked');
+            changeWISE(2);
+        }
+
+        function changeWISE(n) {
+            if (!unlocked.includes(n)) return;
+            currentLevel = n; finishedNodes = 0;
+            document.getElementById('final-report-area').style.display = (n === 4) ? 'block' : 'none';
+            document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`b${n}`).classList.add('active');
+
+            const map = document.getElementById('map');
+            Array.from(map.getElementsByClassName('node')).forEach(e => e.remove());
+
+            if (NODOS[n]) {
+                NODOS[n].forEach(node => {
+                    const el = document.createElement('div');
+                    el.className = 'node'; el.id = `node-${node.id}`;
+                    el.style.left = node.x + 'px'; el.style.top = node.y + 'px';
+                    el.innerHTML = "📍";
+                    map.appendChild(el);
+                });
+                document.getElementById('avatar').style.display = 'flex';
+            } else { document.getElementById('avatar').style.display = 'none'; }
+
+            document.getElementById('phase-txt').innerText = n === 2 ? "Modelación" : n === 3 ? "Simulación" : "Informe";
+            document.getElementById('progreso-nodos').innerText = `0/10`;
+            map.focus();
+        }
+
+        window.addEventListener('keydown', e => { if (!activeChallenge) keys[e.key.toLowerCase()] = true; });
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        function gameLoop() {
+            if (currentLevel > 1 && currentLevel < 4 && !activeChallenge) {
+                const speed = 7;
+                if (keys['arrowup'] || keys['w']) pos.y -= speed;
+                if (keys['arrowdown'] || keys['s']) pos.y += speed;
+                if (keys['arrowleft'] || keys['a']) pos.x -= speed;
+                if (keys['arrowright'] || keys['d']) pos.x += speed;
+                pos.x = Math.max(0, Math.min(650, pos.x)); pos.y = Math.max(0, Math.min(550, pos.y));
+                const av = document.getElementById('avatar');
+                av.style.left = pos.x + 'px'; av.style.top = pos.y + 'px';
+                checkCollision();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function checkCollision() {
+            const list = NODOS[currentLevel];
+            if (!list) return;
+            list.forEach(node => {
+                const dist = Math.hypot(pos.x - node.x, pos.y - node.y);
+                if (dist < 35 && !node.solved) {
+                    activeChallenge = node;
+                    document.getElementById('challenge-ui').style.display = 'block';
+                    document.getElementById('node-name').innerText = node.n;
+                    document.getElementById('node-reading').innerHTML = node.r;
+                    document.getElementById('challenge-text').innerText = node.q;
+                    document.getElementById('challenge-input').value = ""; // LIMPIEZA AUTOMÁTICA
+                }
+            });
+        }
+
+        document.getElementById('btn-submit').onclick = () => {
+            const ans = document.getElementById('challenge-input').value;
+            if (ans.length < 5) return alert("Análisis insuficiente.");
+            activeChallenge.solved = true;
+            document.getElementById(`node-${activeChallenge.id}`).classList.add('solved');
+            document.getElementById('challenge-ui').style.display = 'none';
+            results.push({ n: activeChallenge.n, a: ans });
+            document.getElementById('evidence-list').innerHTML += `<p><b>${activeChallenge.n}:</b> ${ans}</p>`;
+            finishedNodes++;
+            document.getElementById('progreso-nodos').innerText = `${finishedNodes}/10`;
+
+            if (finishedNodes === 10) {
+                const next = currentLevel + 1;
+                unlocked.push(next);
+                document.getElementById(`b${next}`).classList.add('unlocked');
+                log(`Fase completada. Saltando a Fase ${next}...`);
+                setTimeout(() => changeWISE(next), 1500); // SALTO AUTOMÁTICO
+            }
+            activeChallenge = null; document.getElementById('map').focus();
+        };
+
+        function log(m) {
+            const c = document.getElementById('console');
+            c.innerHTML += `> ${m}<br>`; c.scrollTop = c.scrollHeight;
+        }
+
+        function descargar() {
+            const r = document.getElementById('final-report-text').value;
+            if (r.length < 50) return alert("El informe debe ser más extenso.");
+            let txt = "INFORME FINAL USME\n\nSOLUCIÓN:\n" + r + "\n\nBITÁCORA:\n" + results.map(x => x.n + ": " + x.a).join("\n");
+            const blob = new Blob([txt], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "investigacion_usme.txt"; a.click();
+        }
+
+        gameLoop();</script>
+</body>
+</html>
