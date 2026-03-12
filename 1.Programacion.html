@@ -410,7 +410,7 @@
 
                 // Recoger batería (Andamiaje automático de energía)
                 let bat = m.bats.find(b => b.x === drone.x && b.y === drone.y && !b.v);
-                if (bat) { bat.v = true; drone.bat = Math.min(100, drone.bat + 45); }
+                if (bat) { bat.v = true; drone.bat = Math.min(100, drone.bat + 60); }
 
                 if (s === "Cargar Suministro" && drone.x === m.w.x && drone.y === m.w.y) drone.wat = true;
                 if (s === "Descargar Suministro") {
