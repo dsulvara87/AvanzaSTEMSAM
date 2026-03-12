@@ -170,6 +170,24 @@
                 <p>Identifica en el video 2 fuentes de energía renovable y explica cómo se podrían captar en el Páramo.</p>
             </div>
             <textarea id="diag-input" class="ide-editor" style="height: 180px;" placeholder="Registra tus hallazgos teóricos (Mínimo 80 caracteres)..." oninput="validateL1()"></textarea>
+
+<div style="display: flex; align-items: center; justify-content: space-between; background: var(--panel); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; margin-top: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2rem;">📋</span>
+                    <div style="text-align: left;">
+                        <strong style="color: var(--accent); font-size: 0.9rem; display: block;">Guía Técnica de Investigación</strong>
+                        <span style="color: #8b949e; font-size: 0.75rem;">Descarga el protocolo para registrar tus datos.</span>
+                    </div>
+                </div>
+
+                <a href="https://internoredpedu-my.sharepoint.com/:w:/g/personal/dasulvarar_educacionbogota_edu_co/IQCpl7nFlQvVSY8pqBaGXsuxAWk2wU3uvs_x_b1pzCxzhFs?e=qv0i7F" target="_blank" style="text-decoration: none;">
+                    <button class="btn" style="background: #0078d4; color: white; padding: 6px 15px; font-size: 0.8rem; border-radius: 4px; border: none; cursor: pointer; font-weight: bold;">
+                        Descargar Guía
+                    </button>
+                </a>
+            </div>
+            
+            
             <button class="btn-eng" id="btn-lock1" disabled onclick="unlock(2)">Ir al Reto Bogotá →</button>
         </aside>
         <main style="display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 400px;">
@@ -263,8 +281,19 @@
             <button class="btn-eng" style="margin-top:20px;" onclick="exportCSV()">💾 Descargar Evidencia (.CSV)</button>
         </main>
         <aside id="panelSTEM">
-            <h2>🎓 Sistematización Doctoral</h2>
+            <h2>🎓 Sistematización</h2>
             <textarea id="concl-final" class="ide-editor" rows="22" placeholder="Reflexión sobre el impacto social de tu proyecto..."></textarea>
+ 
+            
+            <div style="margin-top: 20px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; background: rgba(88, 166, 255, 0.05); text-align: center;">
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">Para finalizar la investigación, sube tu guía aquí:</p>
+            <a href="https://forms.gle/8n5Kfj5B6RY9PDaT7" target="_blank" style="text-decoration: none;">
+                <button class="btn" style="background: var(--success); color: white; padding: 8px 20px; width: auto; font-size: 0.85rem;">
+                    📤 Subir Guía a Google Drive
+                </button>
+            </a>
+        </div>
+            
         </aside>
     </section>
 
