@@ -203,6 +203,24 @@
             <div class="card">Analiza el video y describe qué variables de Bogotá (Usme) son medibles para una investigación STEM. (Min 80 caracteres).</div>
             </textarea>
 <textarea id="diag-input" class="ide-editor" style="height: 250px;" oninput="validateL1()"></textarea>
+
+<div style="display: flex; align-items: center; justify-content: space-between; background: var(--panel); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; margin-top: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2rem;">📋</span>
+                    <div style="text-align: left;">
+                        <strong style="color: var(--accent); font-size: 0.9rem; display: block;">Guía Técnica de Investigación</strong>
+                        <span style="color: #8b949e; font-size: 0.75rem;">Descarga el protocolo para registrar tus datos.</span>
+                    </div>
+                </div>
+
+                <a href="https://internoredpedu-my.sharepoint.com/:w:/g/personal/dasulvarar_educacionbogota_edu_co/IQCgsHUzgI9tR72QxFn79pxTASY9eQJsAIjhhIE3ccohXZU?e=5sC6D3" target="_blank" style="text-decoration: none;">
+                    <button class="btn" style="background: #0078d4; color: white; padding: 6px 15px; font-size: 0.8rem; border-radius: 4px; border: none; cursor: pointer; font-weight: bold;">
+                        Descargar Guía
+                    </button>
+                </a>
+            </div>
+            
+            
             <button class="btn-eng" id="btn-lock1" disabled onclick="unlock(2)" style="opacity:0.3; margin-top:15px;">Ir a Datos →</button>
         </aside>
 
@@ -275,6 +293,17 @@
             <button class="btn-eng" onclick="exportCSV()" style="margin-top:10px;">💾 Exportar CSV</button>
         </main>
         <aside id="panelSTEM"><h2>🎓 Cierre</h2><textarea class="ide-editor" rows="20"></textarea></aside>
+
+        
+        <div style="margin-top: 20px; padding: 15px; border: 1px solid var(--border); border-radius: 8px; background: rgba(88, 166, 255, 0.05); text-align: center;">
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">Para finalizar la investigación, sube tu guía aquí:</p>
+            <a href="https://forms.gle/jyrGVY8saS9u5WW87" target="_blank" style="text-decoration: none;">
+                <button class="btn" style="background: var(--success); color: white; padding: 8px 20px; width: auto; font-size: 0.85rem;">
+                    📤 Subir Guía a Google Drive
+                </button>
+            </a>
+        </div>
+        
     </section>
 
     <script>let unlocked = [1], currentData = [], currentLabels = [], myChart = null;
